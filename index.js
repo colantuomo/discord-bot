@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { prefix, token } = require('./config.json');
 const client = new Discord.Client();
 
 client.on('ready', () => {
@@ -6,10 +7,9 @@ client.on('ready', () => {
 });
 
 client.on('message', msg => {
-    console.log('msg', msg);
-    if (msg.content === 'ping') {
+    if (msg.content.startsWith(prefix)) {
         msg.reply('Pongggg!');
     }
 });
 
-client.login('NTcxNTAzMzAyNTM0MjM0MTMy.Xadk-Q.egSxphBmdjg2-R39LgfGF9ZnDO4');
+client.login(token);
