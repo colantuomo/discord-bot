@@ -7,9 +7,18 @@ client.on('ready', () => {
 });
 
 client.on('message', msg => {
-    if (msg.content.startsWith(prefix)) {
-        msg.reply('Pongggg!');
-    }
+    // console.log('voice channel', msg.member.voiceChannel);
+    const voiceChannel = msg.member.voiceChannel;
+    // voiceChannel.join().then(res => {
+    //     console.log('OK!');
+    // });
+    const permissions = voiceChannel.permissionsFor(msg.client.user);
+    console.log(permissions.has('CONNECT'));
+    
+    // if (msg.content.startsWith(prefix)) {
+    //     msg.reply(msg.content, false).then(res => {
+    //     });
+    // }
 });
 
 client.login(token);
