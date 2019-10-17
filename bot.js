@@ -161,5 +161,5 @@ function formatMessage(msg){
 }
 
 // api.search('thunder');
-// client.login('NjM0MTE1NDY3NjY5NDA1NzE4.XaeH8g.WEDY5d66AGZiMEGdoST3mLX29cg');
+// client.login('token');
 // client.login(process.env.TOKEN);
