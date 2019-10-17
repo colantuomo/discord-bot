@@ -1,8 +1,6 @@
 const Discord = require('discord.js');
-const {
-    prefix,
-    token,
-} = require('./config.json');
+const { prefix } = require('./config.json');
+const api = require('./api.js');
 const ytdl = require('ytdl-core');
 
 const client = new Discord.Client();
@@ -28,7 +26,11 @@ client.on('message', async message => {
     const serverQueue = queue.get(message.guild.id);
 
     if (message.content.startsWith(`${prefix}play`)) {
-        execute(message, serverQueue);
+        if(isLink(message)){
+            execute(message, serverQueue);
+        } else{
+           search(formatMessage(message.content));
+        }
         return;
     } else if (message.content.startsWith(`${prefix}skip`)) {
         skip(message, serverQueue);
@@ -37,7 +39,7 @@ client.on('message', async message => {
         stop(message, serverQueue);
         return;
     } else {
-        message.channel.send('You need to enter a valid command!')
+        message.channel.send('You need to enter a valid command!');
     }
 });
 
@@ -88,6 +90,27 @@ async function execute(message, serverQueue) {
 
 }
 
+async function search(message){
+    let videosList;
+    const idResponse = await getIds(message);
+    const idList = idResponse.data.items.map(video => {
+        return video.id.videoId;
+    });
+
+    idList.forEach(async id => {
+        const videoResponse = await getDetailsById(id);
+        videosList.push(videoResponse.data.items);
+    });
+}
+
+async function getIds(msg){
+    return await api.search(msg);
+}
+
+async function getDetailsById(id){
+    return await api.searchById(id);
+}
+
 function skip(message, serverQueue) {
     if (!message.member.voiceChannel) return message.channel.send('You have to be in a voice channel to stop the music!');
     if (!serverQueue) return message.channel.send('There is no song that I could skip!');
@@ -121,4 +144,22 @@ function play(guild, song) {
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
 }
 
-client.login(token);
+function isLink(string){
+    let result = false;
+    if(string && (string.content.startsWith('http') || string.content.startsWith('www.')) && 
+    (string.Contains('.com') || string.Contains('.be'))){
+        result = true;
+    }
+    return result;
+}
+
+function formatMessage(msg){
+    if(msg){
+        return msg.split(' ')[1];
+    }
+    return msg;
+}
+
+// api.search('thunder');
+// client.login('NjM0MTE1NDY3NjY5NDA1NzE4.XaeH8g.WEDY5d66AGZiMEGdoST3mLX29cg');
+// client.login(process.env.TOKEN);
