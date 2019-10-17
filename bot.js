@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const { prefix } = require('./config.json');
+const api = require('./api.js');
 const ytdl = require('ytdl-core');
 require('dotenv').config();
 const client = new Discord.Client();
@@ -24,7 +25,11 @@ client.on('message', async message => {
     const serverQueue = queue.get(message.guild.id);
 
     if (command(message, 'play')) {
-        execute(message, serverQueue);
+        if (isLink(message.content)) {
+            execute(message, serverQueue);
+        } else {
+            search(formatMessage(message.content));
+        }
         return;
     } else if (command(message, 'skip')) {
         skip(message, serverQueue);
@@ -46,7 +51,7 @@ client.on('message', async message => {
 function formatQueue(serverQueue) {
     let queue = '```';
     serverQueue.songs.forEach((song, idx) => {
-        queue += `${idx+1}. - ${song.title}`;
+        queue += `${idx + 1}. - ${song.title}`;
     })
     queue += '```';
     return queue;
@@ -102,6 +107,27 @@ async function execute(message, serverQueue) {
 
 }
 
+async function search(message) {
+    let videosList;
+    const idResponse = await getIds(message);
+    const idList = idResponse.data.items.map(video => {
+        return video.id.videoId;
+    });
+
+    idList.forEach(async id => {
+        const videoResponse = await getDetailsById(id);
+        videosList.push(videoResponse.data.items);
+    });
+}
+
+async function getIds(msg) {
+    return await api.search(msg);
+}
+
+async function getDetailsById(id) {
+    return await api.searchById(id);
+}
+
 function skip(message, serverQueue) {
     if (!message.member.voiceChannel) return message.channel.send('You have to be in a voice channel to stop the music!');
     if (!serverQueue) return message.channel.send('There is no song that I could skip!');
@@ -124,13 +150,28 @@ function play(guild, song) {
     const stream = ytdl(song.url, { filter: 'audioonly' });
     const dispatcher = serverQueue.connection.playStream(stream);
     dispatcher.on('end', () => {
-        console.log('Music ended!');
+        serverQueue.textChannel.send('Bye bye! :)');
         serverQueue.songs.shift();
         play(guild, serverQueue.songs[0]);
     }).on('error', error => {
         console.error(error);
     });
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
+}
+
+function isLink(content) {
+    const arg = content.split(' ')[1];
+    if (arg && arg.includes('http')) {
+        return true;
+    }
+    return false;
+}
+
+function formatMessage(msg) {
+    if (msg) {
+        return msg.split(' ')[1];
+    }
+    return msg;
 }
 
 client.login(process.env.TOKEN);
