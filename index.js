@@ -12,8 +12,7 @@ client.on('message', msg => {
     // voiceChannel.join().then(res => {
     //     console.log('OK!');
     // });
-    const permissions = voiceChannel.permissionsFor(msg.client.user);
-    console.log(permissions.has('CONNECT'));
+    // const permissions = voiceChannel.permissionsFor(msg.client.user);
     
     // if (msg.content.startsWith(prefix)) {
     //     msg.reply(msg.content, false).then(res => {
