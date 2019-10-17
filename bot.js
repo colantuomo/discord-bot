@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const { prefix } = require('./config.json');
+const api = require('./api.js');
 const ytdl = require('ytdl-core');
 require('dotenv').config();
 const client = new Discord.Client();
@@ -24,7 +25,11 @@ client.on('message', async message => {
     const serverQueue = queue.get(message.guild.id);
 
     if (command(message, 'play')) {
-        execute(message, serverQueue);
+        if(isLink(message)){
+            execute(message, serverQueue);
+        } else{
+           search(formatMessage(message.content));
+        }
         return;
     } else if (command(message, 'skip')) {
         skip(message, serverQueue);
@@ -37,8 +42,7 @@ client.on('message', async message => {
     } else if (command(message, 'queue')) {
         let queue = formatQueue(serverQueue);
         message.channel.send(queue);
-    }
-    else {
+    } else {
         message.channel.send('You need to enter a valid command!');
     }
 });
@@ -102,6 +106,27 @@ async function execute(message, serverQueue) {
 
 }
 
+async function search(message){
+    let videosList;
+    const idResponse = await getIds(message);
+    const idList = idResponse.data.items.map(video => {
+        return video.id.videoId;
+    });
+
+    idList.forEach(async id => {
+        const videoResponse = await getDetailsById(id);
+        videosList.push(videoResponse.data.items);
+    });
+}
+
+async function getIds(msg){
+    return await api.search(msg);
+}
+
+async function getDetailsById(id){
+    return await api.searchById(id);
+}
+
 function skip(message, serverQueue) {
     if (!message.member.voiceChannel) return message.channel.send('You have to be in a voice channel to stop the music!');
     if (!serverQueue) return message.channel.send('There is no song that I could skip!');
@@ -133,4 +158,22 @@ function play(guild, song) {
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
 }
 
+function isLink(string){
+    let result = false;
+    if(string && (string.content.startsWith('http') || string.content.startsWith('www.')) && 
+    (string.Contains('.com') || string.Contains('.be'))){
+        result = true;
+    }
+    return result;
+}
+
+function formatMessage(msg){
+    if(msg){
+        return msg.split(' ')[1];
+    }
+    return msg;
+}
+
 client.login(process.env.TOKEN);
+// api.search('thunder');
+// client.login('token');
