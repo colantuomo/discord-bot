@@ -4,11 +4,20 @@
   "description": "bot for discord",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node bot.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^11.5.1"
+    "axios": "^0.19.0",
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.2.0",
+    "ffmpeg-binaries": "^3.2.2",
+    "opusscript": "0.0.7",
+    "ffmpeg": "0.0.4",
+    "google-auth-library": "^5.5.0",
+    "googleapis": "^44.0.0",
+    "ytdl-core": "^1.0.0"
   }
 }

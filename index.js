@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { prefix, token } = require('./config.json');
 const client = new Discord.Client();
 
 client.on('ready', () => {
@@ -6,10 +7,17 @@ client.on('ready', () => {
 });
 
 client.on('message', msg => {
-    console.log('msg', msg);
-    if (msg.content === 'ping') {
-        msg.reply('Pongggg!');
-    }
+    // console.log('voice channel', msg.member.voiceChannel);
+    const voiceChannel = msg.member.voiceChannel;
+    // voiceChannel.join().then(res => {
+    //     console.log('OK!');
+    // });
+    // const permissions = voiceChannel.permissionsFor(msg.client.user);
+    
+    // if (msg.content.startsWith(prefix)) {
+    //     msg.reply(msg.content, false).then(res => {
+    //     });
+    // }
 });
 
-client.login('NTcxNTAzMzAyNTM0MjM0MTMy.Xadk-Q.egSxphBmdjg2-R39LgfGF9ZnDO4');
+client.login(token);
