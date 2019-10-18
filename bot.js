@@ -28,7 +28,7 @@ client.on('message', async message => {
         if (isLink(message.content)) {
             execute(message, serverQueue);
         } else {
-            search(formatMessage(message.content));
+            search(message);
         }
         return;
     } else if (command(message, 'skip')) {
@@ -95,7 +95,7 @@ async function execute(message, serverQueue) {
             queueContruct.connection = connection;
             play(message.guild, queueContruct.songs[0]);
         } catch (err) {
-            message.channel.send('I encountered a problem connecting to the voice channel');
+            message.channel.send('I encountered a problem connecting to the voice channel ', JSON.stringify(err));
             queue.delete(message.guild.id);
             return message.channel.send(err);
         }
@@ -108,24 +108,54 @@ async function execute(message, serverQueue) {
 }
 
 async function search(message) {
-    let videosList;
-    const idResponse = await getIds(message);
+    const idResponse = await getIds(formatMessage(message.content));
+
+    if(idResponse.status == 403){
+        console.log('Limite diário de requisições atingidas (/SEARCH)');
+        return;
+    }
+
     const idList = idResponse.data.items.map(video => {
         return video.id.videoId;
     });
 
-    idList.forEach(async id => {
-        const videoResponse = await getDetailsById(id);
-        videosList.push(videoResponse.data.items);
-    });
+    const videoResponse = await getDetailsByIdList(idList);
+
+    if(videoResponse.status == 403){
+        console.log('Limite diário de requisições atingidas (/VIDEOS)');
+        return;
+    }
+
+    showOptions(message, videoResponse);
 }
 
 async function getIds(msg) {
     return await api.search(msg);
 }
 
-async function getDetailsById(id) {
-    return await api.searchById(id);
+async function getDetailsByIdList(idList) {
+    return await api.searchById(idList.join(","));
+}
+
+function showOptions(message, videosList){
+    let msg = '';
+
+    new Promise(resolve => {
+        videosList.data.items.forEach( (video, index) => {
+            let title = video.snippet.title;
+            let channelTitle = video.snippet.channelTitle;
+            let duration = video.contentDetails.duration;
+            msg += `${index+1}. ${title} | ${channelTitle} (${duration})\r\n`;
+        });
+        return resolve(msg);
+    })
+    .then(
+        msg => {
+            message.channel.send("```"+msg+"```");
+        }, error => {
+            console.log('Erro ao exibir lista de vídeos encontrados.', error);
+        }
+    );
 }
 
 function skip(message, serverQueue) {
