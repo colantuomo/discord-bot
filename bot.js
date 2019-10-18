@@ -144,7 +144,7 @@ function showOptions(message, videosList){
         videosList.data.items.forEach( (video, index) => {
             let title = video.snippet.title;
             let channelTitle = video.snippet.channelTitle;
-            let duration = video.contentDetails.duration;
+            let duration = formatDuration(video.contentDetails.duration);
             msg += `${index+1}. ${title} | ${channelTitle} (${duration})\r\n`;
         });
         return resolve(msg);
@@ -199,9 +199,28 @@ function isLink(content) {
 
 function formatMessage(msg) {
     if (msg) {
-        return msg.split(' ')[1];
+        return msg.replace(";play ", "");
     }
     return msg;
+}
+
+function formatDuration(duration){
+    if(duration){
+        var total = duration.replace(/PT|S/gi, "");
+        var hasHour = total.indexOf("H") != -1;
+        var base = total.split("H");
+        var rest = hasHour ? base[1].split("M") : total.split("M");
+        var minSec = formatDecimal(rest[0]) + ':' + formatDecimal(rest[1]);
+        return hasHour ? formatDecimal(base[0]) + ':' + minSec : minSec;
+    }
+    return duration;
+}
+
+function formatDecimal(string){
+    if(string){
+        return string.length == 1 ? "0"+string : string;
+    }
+    return string;
 }
 
 client.login(process.env.TOKEN);
