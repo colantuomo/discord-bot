@@ -5,6 +5,7 @@ const ytdl = require('ytdl-core');
 require('dotenv').config();
 const client = new Discord.Client();
 const queue = new Map();
+searchSession = {};
 
 client.once('ready', () => {
     console.log('Bot Connected');
@@ -42,6 +43,12 @@ client.on('message', async message => {
     } else if (command(message, 'queue')) {
         let queue = formatQueue(serverQueue);
         message.channel.send(queue);
+    } else if(parseInt(message.content.replace(`${prefix}`, ""))){
+        if(!(message.author.id in searchSession)){
+            message.channel.send('You have to search for something before choose an item from the list.');
+        } else{
+            playSearch(message, serverQueue);
+        }
     }
     else {
         message.channel.send('You need to enter a valid command!');
@@ -141,11 +148,18 @@ function showOptions(message, videosList){
     let msg = '';
 
     new Promise(resolve => {
-        videosList.data.items.forEach( (video, index) => {
+        let userId = message.author.id;
+
+        videosList.data.items.forEach( (video, i) => {
             let title = video.snippet.title;
             let channelTitle = video.snippet.channelTitle;
             let duration = formatDuration(video.contentDetails.duration);
-            msg += `${index+1}. ${title} | ${channelTitle} (${duration})\r\n`;
+            let index = i+1;
+            msg += `${index}. ${title} | ${channelTitle} (${duration})\r\n`;
+            //Recriando objeto sempre que o usuário fizer uma nova busca
+            if(index==1)
+                searchSession[userId] = {};
+            searchSession[userId][index] = video.id;
         });
         return resolve(msg);
     })
@@ -187,6 +201,18 @@ function play(guild, song) {
         console.error(error);
     });
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
+}
+
+function playSearch(message, serverQueue){
+    let userId = message.author.id;
+    let msg = message.content.replace(`${prefix}`, "");
+    if(parseInt(msg) > 5 || parseInt(msg) < 1){
+        message.channel.send("This number isn't on the list.");
+    } else{
+        let videoId = searchSession[userId][msg];
+        message.content = `${prefix}play https://www.youtube.com/watch?v=${videoId}`;
+        execute(message, serverQueue);
+    }
 }
 
 function isLink(content) {
