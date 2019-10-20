@@ -196,11 +196,18 @@ async function getPlaylistData() {
 function showOptions(message, videosList){
     let msg = '';
     new Promise(resolve => {
-        videosList.data.items.forEach((video, index) => {
+        let userId = message.author.id;
+
+        videosList.data.items.forEach( (video, i) => {
             let title = video.snippet.title;
             let channelTitle = video.snippet.channelTitle;
-            let duration = video.contentDetails.duration;
-            msg += `${index + 1}. ${title} | ${channelTitle} (${duration})\r\n`;
+            let duration = formatDuration(video.contentDetails.duration);
+            let index = i+1;
+            msg += `${index}. ${title} | ${channelTitle} (${duration})\r\n`;
+            //Recriando objeto sempre que o usuário fizer uma nova busca
+            if(index==1)
+                searchSession[userId] = {};
+            searchSession[userId][index] = video.id;
         });
         return resolve(msg);
     }).then(
