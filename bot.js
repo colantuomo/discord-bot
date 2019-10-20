@@ -43,10 +43,10 @@ client.on('message', async message => {
     } else if (command(message, 'queue')) {
         let queue = formatQueue(serverQueue);
         message.channel.send(queue);
-    } else if(parseInt(message.content.replace(`${prefix}`, ""))){
-        if(!(message.author.id in searchSession)){
+    } else if (parseInt(message.content.replace(`${prefix}`, ""))) {
+        if (!(message.author.id in searchSession)) {
             message.channel.send('You have to search for something before choose an item from the list.');
-        } else{
+        } else {
             playSearch(message, serverQueue);
         }
     }
@@ -58,7 +58,7 @@ client.on('message', async message => {
 function formatQueue(serverQueue) {
     let queue = '```';
     serverQueue.songs.forEach((song, idx) => {
-        queue += `${idx + 1}. - ${song.title}`;
+        queue += `${idx + 1} - ${song.title}`;
     })
     queue += '```';
     return queue;
@@ -72,10 +72,10 @@ async function execute(message, serverQueue) {
     const args = message.content.split(' ');
 
     const voiceChannel = message.member.voiceChannel;
-    if (!voiceChannel) return message.channel.send('You need to be in a voice channel to play music!');
+    if (!voiceChannel) return message.channel.send('Oh cabeção! você precisa estar em um canal de voz pra ouvir musica, né?!');
     const permissions = voiceChannel.permissionsFor(message.client.user);
     if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
-        return message.channel.send('I need the permissions to join and speak in your voice channel!');
+        return message.channel.send('O Jovem! Eu preciso de permissões de falar e conectar!');
     }
 
     const songInfo = await ytdl.getInfo(args[1]);
@@ -102,14 +102,14 @@ async function execute(message, serverQueue) {
             queueContruct.connection = connection;
             play(message.guild, queueContruct.songs[0]);
         } catch (err) {
-            message.channel.send('I encountered a problem connecting to the voice channel ', JSON.stringify(err));
+            message.channel.send('Ih raaapaz! Encontrei um problema ao entrar no canal de voz. ', JSON.stringify(err));
             queue.delete(message.guild.id);
             return message.channel.send(err);
         }
     } else {
         serverQueue.songs.push(song);
         console.log(serverQueue.songs);
-        return message.channel.send(`${song.title} has been added to the queue!`);
+        return message.channel.send(`${song.title} foi adicionado a fila!`);
     }
 
 }
@@ -117,7 +117,7 @@ async function execute(message, serverQueue) {
 async function search(message) {
     const idResponse = await getIds(formatMessage(message.content));
 
-    if(idResponse.status == 403){
+    if (idResponse.status == 403) {
         console.log('Limite diário de requisições atingidas (/SEARCH)');
         return;
     }
@@ -128,7 +128,7 @@ async function search(message) {
 
     const videoResponse = await getDetailsByIdList(idList);
 
-    if(videoResponse.status == 403){
+    if (videoResponse.status == 403) {
         console.log('Limite diário de requisições atingidas (/VIDEOS)');
         return;
     }
@@ -144,30 +144,22 @@ async function getDetailsByIdList(idList) {
     return await api.searchById(idList.join(","));
 }
 
-function showOptions(message, videosList){
+function showOptions(message, videosList) {
     let msg = '';
-
     new Promise(resolve => {
-        let userId = message.author.id;
-
-        videosList.data.items.forEach( (video, i) => {
+        videosList.data.items.forEach((video, index) => {
             let title = video.snippet.title;
             let channelTitle = video.snippet.channelTitle;
-            let duration = formatDuration(video.contentDetails.duration);
-            let index = i+1;
-            msg += `${index}. ${title} | ${channelTitle} (${duration})\r\n`;
-            //Recriando objeto sempre que o usuário fizer uma nova busca
-            if(index==1)
-                searchSession[userId] = {};
-            searchSession[userId][index] = video.id;
+            let duration = video.contentDetails.duration;
+            msg += `${index + 1}. ${title} | ${channelTitle} (${duration})\r\n`;
         });
         return resolve(msg);
-    })
-    .then(
-        msg => {
-            message.channel.send("```"+msg+"```");
+    }).then(
+        res => {
+            message.channel.send("```" + res + "```");
         }, error => {
-            console.log('Erro ao exibir lista de vídeos encontrados.', error);
+            message.channel.send('Erro ao exibir lista de vídeos encontrados.');
+            console.log('showOptions', error);
         }
     );
 }
@@ -203,12 +195,12 @@ function play(guild, song) {
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
 }
 
-function playSearch(message, serverQueue){
+function playSearch(message, serverQueue) {
     let userId = message.author.id;
     let msg = message.content.replace(`${prefix}`, "");
-    if(parseInt(msg) > 5 || parseInt(msg) < 1){
+    if (parseInt(msg) > 5 || parseInt(msg) < 1) {
         message.channel.send("This number isn't on the list.");
-    } else{
+    } else {
         let videoId = searchSession[userId][msg];
         message.content = `${prefix}play https://www.youtube.com/watch?v=${videoId}`;
         execute(message, serverQueue);
@@ -230,8 +222,8 @@ function formatMessage(msg) {
     return msg;
 }
 
-function formatDuration(duration){
-    if(duration){
+function formatDuration(duration) {
+    if (duration) {
         var total = duration.replace(/PT|S/gi, "");
         var hasHour = total.indexOf("H") != -1;
         var base = total.split("H");
@@ -242,9 +234,9 @@ function formatDuration(duration){
     return duration;
 }
 
-function formatDecimal(string){
-    if(string){
-        return string.length == 1 ? "0"+string : string;
+function formatDecimal(string) {
+    if (string) {
+        return string.length == 1 ? "0" + string : string;
     }
     return string;
 }
