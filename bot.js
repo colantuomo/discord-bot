@@ -32,6 +32,10 @@ client.on('message', async message => {
             search(message);
         }
         return;
+    } else if (command(message, 'list')) {
+        console.log('ENTROU PLAYLIST')
+        addPlaylist(message, serverQueue);
+        return;
     } else if (command(message, 'skip')) {
         skip(message, serverQueue);
         return;
@@ -77,7 +81,6 @@ async function execute(message, serverQueue) {
     if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
         return message.channel.send('O Jovem! Eu preciso de permissões de falar e conectar!');
     }
-
     const songInfo = await ytdl.getInfo(args[1]);
     const song = {
         title: songInfo.title,
@@ -95,7 +98,6 @@ async function execute(message, serverQueue) {
         };
 
         queue.set(message.guild.id, queueContruct);
-
         queueContruct.songs.push(song);
         try {
             var connection = await voiceChannel.join();
@@ -112,6 +114,44 @@ async function execute(message, serverQueue) {
         return message.channel.send(`${song.title} foi adicionado a fila!`);
     }
 
+}
+
+async function addPlaylist(message, serverQueue){
+    console.log('ENTROU ADD PLAYLIST')
+    const voiceChannel = message.member.voiceChannel;
+    const playlistData = await getPlaylistData();
+    songsList = []
+    for(let item of playlistData.items){
+        serverQueue = queue.get(message.guild.id);
+        // console.log('item ===>>>>>', item.snippet)
+        // talvez tenha q atualizar o serverQueue acada iteração => serverQueue = queue.get(guild.id);]
+        const linkYoutube = 'https://www.youtube.com/watch?v=' + item.snippet.resourceId.videoId + '&list=' + item.snippet.playlistId;
+        const song = {
+            title: item.snippet.title,
+            url: linkYoutube,
+        };
+        songsList.push(song);
+    }
+
+    const queueContruct = {
+        textChannel: message.channel,
+        voiceChannel: voiceChannel,
+        connection: null,
+        songs: songsList,
+        volume: 5,
+        playing: true,
+    };
+
+    queue.set(message.guild.id, queueContruct);
+    try {
+        var connection = await voiceChannel.join();
+        queueContruct.connection = connection;
+        play(message.guild, queueContruct.songs[0]);
+    } catch (err) {
+        message.channel.send('I encountered a problem connecting to the voice channel ', JSON.stringify(err));
+        queue.delete(message.guild.id);
+        return message.channel.send(err);
+    }
 }
 
 async function search(message) {
@@ -144,7 +184,16 @@ async function getDetailsByIdList(idList) {
     return await api.searchById(idList.join(","));
 }
 
-function showOptions(message, videosList) {
+async function getPlaylistData() {
+    const result = await api.getPlaylist();
+    if (result) {
+        return result.data
+    } else {
+        serverQueue.textChannel.send('Erro ao baixar playlist do Youtube');
+    }
+}
+
+function showOptions(message, videosList){
     let msg = '';
     new Promise(resolve => {
         videosList.data.items.forEach((video, index) => {

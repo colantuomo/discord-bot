@@ -36,6 +36,20 @@ class Api{
             console.log(error);
         });
     }
+
+    getPlaylist(){
+        return axios.get(`${googleBaseURL}/playlistItems`, {
+            params: {
+                key: apiKey,
+                part: "snippet",
+                playlistId: "RDi1IKnWDecwA"
+            },
+            responseType: 'json'
+        })
+        .catch(error => {
+            console.log(error);
+        });
+    }
 }
 
 module.exports = new Api();
