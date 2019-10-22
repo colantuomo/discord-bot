@@ -34,7 +34,7 @@ client.on('message', async message => {
         return;
     } else if (command(message, 'list')) {
         console.log('ENTROU PLAYLIST')
-        addPlaylist(message, serverQueue);
+        addPlaylist(message);
         return;
     } else if (command(message, 'skip')) {
         skip(message, serverQueue);
@@ -116,15 +116,15 @@ async function execute(message, serverQueue) {
 
 }
 
-async function addPlaylist(message, serverQueue){
-    console.log('ENTROU ADD PLAYLIST')
+async function addPlaylist(message){
+    const args = message.content.split(' ');
     const voiceChannel = message.member.voiceChannel;
-    const playlistData = await getPlaylistData();
+    //pega a penas a url do youtube e manda para o metodo getPlaylistData para pegar a lista de musicas
+    const playlistData = await getPlaylistData(args[1]);
     songsList = []
+    // Faz um for na lista de musicas para pegar o nome e url do video
     for(let item of playlistData.items){
         serverQueue = queue.get(message.guild.id);
-        // console.log('item ===>>>>>', item.snippet)
-        // talvez tenha q atualizar o serverQueue acada iteração => serverQueue = queue.get(guild.id);]
         const linkYoutube = 'https://www.youtube.com/watch?v=' + item.snippet.resourceId.videoId + '&list=' + item.snippet.playlistId;
         const song = {
             title: item.snippet.title,
@@ -132,7 +132,9 @@ async function addPlaylist(message, serverQueue){
         };
         songsList.push(song);
     }
-
+    // Constroi o obj para adicionar na fila do markin
+    // Todo o processo daqui para baixo pode ser separado em outros metodos,
+    // pois esse codigo esta sendo repetido no metodo 'execute', mas foi colocado aqui direto para testar playlist
     const queueContruct = {
         textChannel: message.channel,
         voiceChannel: voiceChannel,
@@ -184,8 +186,8 @@ async function getDetailsByIdList(idList) {
     return await api.searchById(idList.join(","));
 }
 
-async function getPlaylistData() {
-    const result = await api.getPlaylist();
+async function getPlaylistData(url) {
+    const result = await api.getPlaylist(url);
     if (result) {
         return result.data
     } else {
