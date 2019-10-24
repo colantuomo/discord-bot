@@ -62,7 +62,7 @@ client.on('message', async message => {
 function formatQueue(serverQueue) {
     let queue = '```';
     serverQueue.songs.forEach((song, idx) => {
-        queue += `${idx + 1} - ${song.title}`;
+        queue += `${idx + 1} - ${song.title}\r\n`;
     })
     queue += '```';
     return queue;
