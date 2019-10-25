@@ -149,14 +149,14 @@ function showOptions(message, videosList) {
     new Promise(resolve => {
         let userId = message.author.id;
 
-        videosList.data.items.forEach( (video, i) => {
+        videosList.data.items.forEach((video, i) => {
             let title = video.snippet.title;
             let channelTitle = video.snippet.channelTitle;
             let duration = formatDuration(video.contentDetails.duration);
-            let index = i+1;
+            let index = i + 1;
             msg += `${index}. ${title} | ${channelTitle} (${duration})\r\n`;
             //Recriando objeto sempre que o usuário fizer uma nova busca
-            if(index==1)
+            if (index == 1)
                 searchSession[userId] = {};
             searchSession[userId][index] = video.id;
         });
@@ -180,6 +180,7 @@ function skip(message, serverQueue) {
 function stop(message, serverQueue) {
     if (!message.member.voiceChannel) return message.channel.send('You have to be in a voice channel to stop the music!');
     serverQueue.songs = [];
+    serverQueue.textChannel.send('Bye bye! :)');
     serverQueue.connection.dispatcher.end();
 }
 
@@ -193,7 +194,6 @@ function play(guild, song) {
     const stream = ytdl(song.url, { filter: 'audioonly' });
     const dispatcher = serverQueue.connection.playStream(stream);
     dispatcher.on('end', () => {
-        serverQueue.textChannel.send('Bye bye! :)');
         serverQueue.songs.shift();
         play(guild, serverQueue.songs[0]);
     }).on('error', error => {
