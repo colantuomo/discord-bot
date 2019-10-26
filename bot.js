@@ -62,7 +62,7 @@ client.on('message', async message => {
 function formatQueue(serverQueue) {
     let queue = '```';
     serverQueue.songs.forEach((song, idx) => {
-        queue += `${idx + 1} - ${song.title}`;
+        queue += `${idx + 1} - ${song.title}\r\n`;
     })
     queue += '```';
     return queue;
@@ -120,7 +120,12 @@ async function addPlaylist(message){
     const args = message.content.split(' ');
     const voiceChannel = message.member.voiceChannel;
     //pega a penas a url do youtube e manda para o metodo getPlaylistData para pegar a lista de musicas
-    const playlistData = await getPlaylistData(args[1]);
+    const playlistData = await getPlaylistData(args[1], "");
+    const numberPages = (playlistData.pageInfo.totalResults/playlistData.pageInfo.resultsPerPage);
+    for (let page=1; page<=numberPages; page++) {
+        const newPage = await getPlaylistData(args[1], playlistData.nextPageToken)
+        playlistData.items.push(...newPage.items);
+    }
     songsList = []
     // Faz um for na lista de musicas para pegar o nome e url do video
     for(let item of playlistData.items){
@@ -130,6 +135,8 @@ async function addPlaylist(message){
             title: item.snippet.title,
             url: linkYoutube,
         };
+        console.log('YOUTUBE LINK:', linkYoutube)
+        console.log('SONG: ', song)
         songsList.push(song);
     }
     // Constroi o obj para adicionar na fila do markin
@@ -186,8 +193,8 @@ async function getDetailsByIdList(idList) {
     return await api.searchById(idList.join(","));
 }
 
-async function getPlaylistData(url) {
-    const result = await api.getPlaylist(url);
+async function getPlaylistData(url, nextPageToken="") {
+    const result = await api.getPlaylist(url, nextPageToken);
     if (result) {
         return result.data
     } else {
@@ -241,7 +248,7 @@ function play(guild, song) {
         queue.delete(guild.id);
         return;
     }
-    const stream = ytdl(song.url, { filter: 'audioonly' });
+    const stream = ytdl(song.url, {'highWaterMark ': 64000 });
     const dispatcher = serverQueue.connection.playStream(stream);
     dispatcher.on('end', () => {
         serverQueue.textChannel.send('Bye bye! :)');

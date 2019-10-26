@@ -37,14 +37,15 @@ class Api{
         });
     }
 
-    getPlaylist(url){
+    getPlaylist(url, pageToken){
         var regexp = new RegExp('\list=(.*)\&');  
         var playlistId = regexp.exec(url)[1];
         return axios.get(`${googleBaseURL}/playlistItems`, {
             params: {
                 key: apiKey,
                 part: "snippet",
-                playlistId: playlistId
+                playlistId: playlistId,
+                pageToken: pageToken 
             },
             responseType: 'json'
         })
