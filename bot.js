@@ -33,7 +33,6 @@ client.on('message', async message => {
         }
         return;
     } else if (command(message, 'list')) {
-        console.log('ENTROU PLAYLIST')
         addPlaylist(message);
         return;
     } else if (command(message, 'skip')) {
@@ -110,7 +109,6 @@ async function execute(message, serverQueue) {
         }
     } else {
         serverQueue.songs.push(song);
-        console.log(serverQueue.songs);
         return message.channel.send(`${song.title} foi adicionado a fila!`);
     }
 
@@ -135,8 +133,6 @@ async function addPlaylist(message){
             title: item.snippet.title,
             url: linkYoutube,
         };
-        console.log('YOUTUBE LINK:', linkYoutube)
-        console.log('SONG: ', song)
         songsList.push(song);
     }
     // Constroi o obj para adicionar na fila do markin
