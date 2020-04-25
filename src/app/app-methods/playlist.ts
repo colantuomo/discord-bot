@@ -21,7 +21,7 @@ class Playlist {
         // Faz um for na lista de musicas para pegar o nome e url do video
         for(let item of playlistData.items){
             this.serverQueue = QueueService.get(message.guild.id);
-            const linkYoutube = 'https://www.youtube.com/watch?v=' + item.snippet.resourceId.videoId + '&list=' + item.snippet.playlistId;
+            const linkYoutube = 'https://www.youtube.com/watch?v=' + item.snippet.resourceId.videoId + '&playlists=' + item.snippet.playlistId;
             const song = {
                 title: item.snippet.title,
                 url: linkYoutube,

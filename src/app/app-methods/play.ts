@@ -14,6 +14,7 @@ class Play {
     }
 
     async execute(message: any, serverQueue: any) {
+        console.log(' message.content',  message.content)
         const args = message.content.split(' ');
     
         const voiceChannel = message.member.voiceChannel;
@@ -22,12 +23,13 @@ class Play {
         if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
             return message.channel.send('O Jovem! Eu preciso de permissões de falar e conectar!');
         }
+        console.log("ARGS 1", args[1])
         const songInfo = await ytdl.getInfo(args[1]);
         const song = {
             title: songInfo.title,
             url: songInfo.video_url,
         };
-    
+        console.log('SONG', song)
         if (!serverQueue) {
             const queueContruct: QueueContructModel = {
                 textChannel: message.channel,
@@ -42,7 +44,7 @@ class Play {
             queueContruct.songs.push(song);
             try {
                 var connection = await voiceChannel.join();
-                queueContruct.connection = connection;
+                queueContruct.connection = connection;;
                 this.play(message.guild, queueContruct.songs[0]);
             } catch (err) {
                 message.channel.send('Ih raaapaz! Encontrei um problema ao entrar no canal de voz. ', JSON.stringify(err));
@@ -81,7 +83,8 @@ class Play {
         } else {
             const searchSession = Search.getSearchSession();
             let videoId = searchSession[userId][msg];
-            message.content = environment.prefix + 'play' + 'https://www.youtube.com/watch?v=' + videoId;
+            message.content = environment.prefix + 'play ' + 'https://www.youtube.com/watch?v=' + videoId;
+            console.log('message content', message.content)
             this.execute(message, serverQueue);
         }
     }

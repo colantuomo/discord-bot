@@ -1,7 +1,15 @@
 import QueueContructModel from '../model/queue-contruct.model';
 
-class QueueService { 
+class QueueService {
+    instance: any;
     queue = new Map();
+
+    constructor() {
+        if (!instance) {
+            this.instance = this;
+        }
+        return instance;
+    }
 
     get(id: any) {
         return this.queue.get(id);

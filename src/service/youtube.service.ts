@@ -20,7 +20,7 @@ class YoutubeService {
     }
 
     getById(id: string) {
-        return axios.get(`${environment.googleBaseURL}/videos`, {
+        return axios.get(environment.googleBaseURL + '/videos', {
             params: {
                 key: environment.apiKey,
                 access_token: environment.authToken,

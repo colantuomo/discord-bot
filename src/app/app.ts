@@ -1,4 +1,5 @@
 import Discord from 'discord.js';
+import 'dotenv';
 
 import Play from './app-methods/play';
 import Playlist from './app-methods/playList';
@@ -7,12 +8,12 @@ import Skip from './app-methods/skip';
 import Stop from './app-methods/stop';
 import Search from './app-methods/search';
 import Formatter from './formatter/formatter';
+import QueueService from '../service/queue.service';
 import environment from '../infra/environment';
 
 console.log('INICIOU APLICAÇÃO')
 const client = new Discord.Client();
-const queue = new Map();
-let searchSession = {};
+// const queue = new Map();
 
 client.once('ready', () => {
     console.log('Bot Connected');
@@ -25,13 +26,12 @@ client.once('reconnecting', () => {
 client.once('disconnect', () => {
     console.log('Disconnect!');
 });
-
-// client.login(process.env.TOKEN);
+client.login('NjM0MTE1NDY3NjY5NDA1NzE4.XlxMZw.NSIUDNSRogJLUENxIU8RTYyhSps');
 
 client.on('message', async message => {
     if (message.author.bot) return;
     if (!message.content.startsWith(environment.prefix)) return;
-    const serverQueue = queue.get(message.guild.id);
+    let serverQueue = QueueService.get(message.guild.id);
 
     if (Shared.command(message, 'play')) {
         if (Play.isLink(message.content)) {
@@ -55,7 +55,7 @@ client.on('message', async message => {
         let queue = Formatter.formatQueue(serverQueue);
         message.channel.send(queue);
     } else if (parseInt(message.content.replace(environment.prefix, ""))) {
-        if (!(message.author.id in searchSession)) {
+        if (!(message.author.id in Search.getSearchSession())) {
             message.channel.send('You have to search for something before choose an item from the list.');
         } else {
             Play.playSearch(message, serverQueue);

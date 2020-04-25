@@ -2,7 +2,7 @@ import YoutubeService from '../../service/youtube.service';
 import Formatter from '../formatter/formatter';
 class Search {
 
-    searchSession: any;
+    searchSession: any = {};
 
     getSearchSession() {
         return this.searchSession;
@@ -14,7 +14,6 @@ class Search {
 
     async search(message: any) {
         const idResponse: any = await YoutubeService.get(Formatter.formatMessage(message.content));
-    
         if (idResponse.status == 403) {
             console.log('Limite diário de requisições atingidas (/SEARCH)');
             return;
@@ -23,23 +22,25 @@ class Search {
         const idList = idResponse.data.items.map((video: any) => {
             return video.id.videoId;
         });
-    
-        const videoResponse: any = await YoutubeService.getById(idList);
-    
-        if (videoResponse.status == 403) {
-            console.log('Limite diário de requisições atingidas (/VIDEOS)');
-            return;
+
+        const videoList: any = [];
+        for(let item of idList) {
+            const result: any = await YoutubeService.getById(item);
+            if (result.status == 403) {
+                console.log('Limite diário de requisições atingidas (/VIDEOS)');
+                return;
+            }
+            videoList.push(...result.data.items);
         }
-    
-        this.showOptions(message, videoResponse);
+        this.showOptions(message, videoList);
     }
 
-    showOptions(message: any, videosList: any){
+    showOptions(message: any, videosList: any) {
         let msg = '';
         new Promise(resolve => {
             let userId = message.author.id;
     
-            videosList.data.items.forEach((video: any, i: number) => {
+            videosList.forEach((video: any, i: number) => {
                 let title = video.snippet.title;
                 let channelTitle = video.snippet.channelTitle;
                 let duration = Formatter.formatDuration(video.contentDetails.duration);
