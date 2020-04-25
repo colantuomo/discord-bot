@@ -23,10 +23,30 @@ class Api{
     }
 
     searchById(id){
-        axios.get(`${googleBaseURL}/videos`, {
+        return axios.get(`${googleBaseURL}/videos`, {
             params: {
+                key: apiKey,
+                access_token: OAuthToken,
                 part: "snippet,contentDetails",
                 id: id
+            },
+            responseType: 'json'
+        })
+        .catch(error => {
+            console.log(error);
+        });
+    }
+
+    getPlaylist(url, pageToken){
+        var regexp = new RegExp('\list=(.*)\&');  
+        var playlistId = regexp.exec(url)[1];
+        console.log('playlistId', playlistId)
+        return axios.get(`${googleBaseURL}/playlistItems`, {
+            params: {
+                key: apiKey,
+                part: "snippet",
+                playlistId: playlistId,
+                pageToken: pageToken 
             },
             responseType: 'json'
         })
