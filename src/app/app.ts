@@ -1,6 +1,4 @@
 import Discord from 'discord.js';
-import 'dotenv';
-
 import Play from './app-methods/play';
 import Playlist from './app-methods/playList';
 import Shared from './shared/shared';
@@ -26,7 +24,8 @@ client.once('reconnecting', () => {
 client.once('disconnect', () => {
     console.log('Disconnect!');
 });
-client.login('NjM0MTE1NDY3NjY5NDA1NzE4.XlxMZw.NSIUDNSRogJLUENxIU8RTYyhSps');
+
+client.login(environment.token);
 
 client.on('message', async message => {
     if (message.author.bot) return;
