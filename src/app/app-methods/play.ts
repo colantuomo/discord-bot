@@ -13,7 +13,7 @@ class Play {
         return false;
     }
 
-    async execute(message: any, serverQueue: any) {
+    async execute(message: any, serverQueue: any, nextMusic: boolean) {
         console.log(' message.content',  message.content)
         const args = message.content.split(' ');
     
@@ -52,7 +52,7 @@ class Play {
                 return message.channel.send(err);
             }
         } else {
-            serverQueue.songs.push(song);
+            nextMusic ? serverQueue.songs.splice(1, 0, song) : serverQueue.songs.push(song);
             return message.channel.send(`${song.title} foi adicionado a fila!`);
         }
     }
@@ -85,7 +85,7 @@ class Play {
             let videoId = searchSession[userId][msg];
             message.content = environment.prefix + 'play ' + 'https://www.youtube.com/watch?v=' + videoId;
             console.log('message content', message.content)
-            this.execute(message, serverQueue);
+            this.execute(message, serverQueue, false);
         }
     }
 }

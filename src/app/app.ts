@@ -33,11 +33,10 @@ client.on('message', async message => {
     let serverQueue = QueueService.get(message.guild.id);
 
     if (Shared.command(message, 'play')) {
-        if (Play.isLink(message.content)) {
-            Play.execute(message, serverQueue);
-        } else {
-            Search.search(message);
-        }
+        Play.isLink(message.content) ? Play.execute(message, serverQueue, false) : Search.search(message);
+        return;
+    } else if (Shared.command(message, 'first')) {
+        Play.isLink(message.content) ? Play.execute(message, serverQueue, true) : message.channel.send('NUM VAI DA! Atualmente este comando funciona apenas via link do YouTube.');
         return;
     } else if (Shared.command(message, 'list')) {
         Playlist.addPlaylist(message);
