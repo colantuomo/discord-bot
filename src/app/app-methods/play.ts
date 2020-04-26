@@ -13,7 +13,7 @@ class Play {
         return false;
     }
 
-    async execute(message: any, serverQueue: any, nextMusic: boolean) {
+    async execute(message: any, serverQueue: any, nextMusic: Boolean) {
         console.log(' message.content',  message.content)
         const args = message.content.split(' ');
     
@@ -75,7 +75,7 @@ class Play {
         dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
     }
 
-    playSearch(message: any, serverQueue: any) {
+    playSearch(message: any, serverQueue: any, nextMusic: Boolean) {
         let userId = message.author.id;
         let msg = message.content.replace(environment.prefix, "");
         if (parseInt(msg) > 5 || parseInt(msg) < 1) {
@@ -85,7 +85,7 @@ class Play {
             let videoId = searchSession[userId][msg];
             message.content = environment.prefix + 'play ' + 'https://www.youtube.com/watch?v=' + videoId;
             console.log('message content', message.content)
-            this.execute(message, serverQueue, false);
+            this.execute(message, serverQueue, nextMusic);
         }
     }
 }
