@@ -38,24 +38,26 @@ class YoutubeService {
         }
     }
 
-    getPlaylist(url: string, pageToken: string) {
-        const regexp = new RegExp('\list=(.*)\&').exec(url);
-        let playlistId = '';
-        if (regexp) {
-            playlistId = regexp[1];
+    async getPlaylist(url: string, pageToken: string) {
+        try {
+            const regexp = new RegExp('\list=(.*)\&').exec(url);
+            let playlistId = '';
+            if (regexp) {
+                playlistId = regexp[1];
+            }
+            return await axios.get(`${environment.googleBaseURL}/playlistItems`, {
+                params: {
+                    key: environment.apiKey,
+                    part: "snippet",
+                    playlistId: playlistId,
+                    pageToken: pageToken
+                },
+                responseType: 'json'
+            });
         }
-        return axios.get(`${environment.googleBaseURL}/playlistItems`, {
-            params: {
-                key: environment.apiKey,
-                part: "snippet",
-                playlistId: playlistId,
-                pageToken: pageToken 
-            },
-            responseType: 'json'
-        })
-        .catch((error: any) => {
-            console.log(error);
-        });
+        catch (error) {
+            throw error + ' (/PLAYLISTITEMS)';
+        }
     }
 
 }
