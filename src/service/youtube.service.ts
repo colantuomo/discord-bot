@@ -2,36 +2,40 @@ import axios from 'axios';
 import environment from '../infra/environment';
 
 class YoutubeService {
-    get(message: any) {
-        return axios.get(environment.googleBaseURL + '/search', {
-            params: {
-                part: "snippet",
-                q: message,
-                key: environment.apiKey,
-                access_token: environment.authToken,
-                type: "video",
-                maxResults: 5
-            },
-            responseType: 'json'
-        })
-        .catch((error: any) => {
-            console.log(error);
-        });
+    async get(message: any) {
+        try {
+            return await axios.get(environment.googleBaseURL + '/search', {
+                params: {
+                    part: "snippet",
+                    q: message,
+                    key: environment.apiKey,
+                    access_token: environment.authToken,
+                    type: "video",
+                    maxResults: 5
+                },
+                responseType: 'json'
+            });
+        }
+        catch (error) {
+            throw error + ' (/SEARCH)';
+        }
     }
 
-    getById(id: string) {
-        return axios.get(environment.googleBaseURL + '/videos', {
-            params: {
-                key: environment.apiKey,
-                access_token: environment.authToken,
-                part: "snippet,contentDetails",
-                id: id
-            },
-            responseType: 'json'
-        })
-        .catch((error: any) => {
-            console.log(error);
-        });
+    async getById(id: string) {
+        try {
+            return await axios.get(environment.googleBaseURL + '/videos', {
+                params: {
+                    key: environment.apiKey,
+                    access_token: environment.authToken,
+                    part: "snippet,contentDetails",
+                    id: id
+                },
+                responseType: 'json'
+            });
+        }
+        catch (error) {
+            throw error + ' (/VIDEOS)';
+        }
     }
 
     getPlaylist(url: string, pageToken: string) {
