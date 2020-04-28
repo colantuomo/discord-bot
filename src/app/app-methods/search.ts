@@ -24,29 +24,25 @@ class Search {
     }
 
     async search(message: any) {
-        const userId = message.author.id;
-        this.setLastCommand(userId, message.content.split(' ')[0].replace(environment.prefix, ''));
+        try {
+            const userId = message.author.id;
+            this.setLastCommand(userId, message.content.split(' ')[0].replace(environment.prefix, ''));
 
-        const idResponse: any = await YoutubeService.get(Formatter.formatMessage(message.content));
-        if (idResponse.status == 403) {
-            console.log('Limite diário de requisições atingidas (/SEARCH)');
-            return;
-        }
+            const result: any = await YoutubeService.get(Formatter.formatMessage(message.content));
 
-        const idList = idResponse.data.items.map((video: any) => {
-            return video.id.videoId;
-        });
+            const idList = result.data.items.map((video: any) => {
+                return video.id.videoId;
+            });
 
-        const videoList: any = [];
-        for (let item of idList) {
-            const result: any = await YoutubeService.getById(item);
-            if (result.status == 403) {
-                console.log('Limite diário de requisições atingidas (/VIDEOS)');
-                return;
+            const videoList: any = [];
+            for (let item of idList) {
+                const result: any = await YoutubeService.getById(item);
+                videoList.push(...result.data.items);
             }
-            videoList.push(...result.data.items);
+            this.showOptions(message, videoList);
+        } catch (error) {
+            console.log('== Error: ', error);
         }
-        this.showOptions(message, videoList);
     }
 
     showOptions(message: any, videosList: any) {
