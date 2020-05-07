@@ -71,6 +71,9 @@ const main = async () => {
         } else if (Shared.command(message, 'fav')) {
             const newFav = await Favorites.addFav(message.content);
             if(newFav) favMap = Favorites.refreshFavMap(favMap, message.content);
+        } else if (Shared.command(message, 'favlist')) {
+            const favList = await Favorites.getFavoriteCommands();
+            message.channel.send(favList);
         } else if (parseInt(message.content.replace(environment.prefix, ""))) {
             if (!(message.author.id in Search.getSearchSession())) {
                 message.channel.send('You have to search for something before choose an item from the list.');

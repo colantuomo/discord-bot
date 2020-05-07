@@ -61,6 +61,16 @@ class Favorites {
         favMap[key] = value;
         return favMap;
     }
+
+    async getFavoriteCommands(){
+        let result = '```';
+        const data = await FavoritesSchema.find();
+        data.forEach((item: any) => {
+            result += `${item.command} - ${item.link} \r\n`;
+        })
+        result += '```';
+        return result;
+    }
 }
 
 const instance = new Favorites();
