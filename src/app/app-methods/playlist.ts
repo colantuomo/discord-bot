@@ -37,7 +37,7 @@ class Playlist {
             voiceChannel: voiceChannel,
             connection: null,
             songs: songsList,
-            volume: 5,
+            volume: 0.7,
             playing: true,
         };
 
