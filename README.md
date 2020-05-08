@@ -10,10 +10,6 @@ To run locally you need to:
 - Click in `path` and add the line `C:\ffmpeg\bin`
 - ![ffmpeg_tutorial](https://i.ibb.co/cbwDKrh/ffmpeg-tuto.png)
 
-
-- configure .env archive
-- npm run dev
-
   
 
 ## Commands
