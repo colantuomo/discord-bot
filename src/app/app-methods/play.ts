@@ -36,10 +36,9 @@ class Play {
                 voiceChannel: voiceChannel,
                 connection: null,
                 songs: [],
-                volume: 5,
+                volume: 0.7,
                 playing: true,
             };
-    
             QueueService.set(message.guild.id, queueContruct);
             queueContruct.songs.push(song);
             try {
