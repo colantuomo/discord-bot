@@ -1,14 +1,33 @@
-# discord-bot
+# discord-bot / markin DJ
+  
 
-## Start project
+## Installation
+
+To run locally you need to: 
+- Download [ffmpeg](https://www.ffmpeg.org/download.html)
+- Rename the folder to just **ffmpeg** and move to `C:\`
+- Go to your environment variables
+- Click in `path` and add the line `C:\ffmpeg\bin`
+![How to]([https://i.ibb.co/cbwDKrh/ffmpeg-tuto.png](https://i.ibb.co/cbwDKrh/ffmpeg-tuto.png)
+
+
 - configure .env archive
 - npm run dev
 
+  
+
 ## Commands
+
 - play
+
 - first
+
 - list
+
 - skip
+
 - stop
+
 - leave
+
 - queue
