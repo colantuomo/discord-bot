@@ -8,7 +8,7 @@ To run locally you need to:
 - Rename the folder to just **ffmpeg** and move to `C:\`
 - Go to your environment variables
 - Click in `path` and add the line `C:\ffmpeg\bin`
-![ffmpeg_tutorial](https://i.ibb.co/cbwDKrh/ffmpeg-tuto.png)
+- ![ffmpeg_tutorial](https://i.ibb.co/cbwDKrh/ffmpeg-tuto.png)
 
 
 - configure .env archive
