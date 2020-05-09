@@ -68,12 +68,15 @@ const main = async () => {
         } else if (Shared.command(message, 'queue')) {
             let queue = Formatter.formatQueue(serverQueue);
             message.channel.send(queue);
-        } else if (Shared.command(message, 'fav')) {
-            const newFav = await Favorites.addFav(message.content);
-            if(newFav) favMap = Favorites.refreshFavMap(favMap, message.content);
         } else if (Shared.command(message, 'favlist')) {
             const favList = await Favorites.getFavoriteCommands();
             message.channel.send(favList);
+        } else if (Shared.command(message, 'fav')) {
+            const newFav = await Favorites.addFav(message.content);
+            if (newFav.created) {
+                favMap = Favorites.refreshFavMap(favMap, message.content);
+                message.channel.send(`Sucesso ao vincular link ao comando ${environment.prefix}${newFav.command}`);
+            }
         } else if (parseInt(message.content.replace(environment.prefix, ""))) {
             if (!(message.author.id in Search.getSearchSession())) {
                 message.channel.send('You have to search for something before choose an item from the list.');
