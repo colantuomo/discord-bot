@@ -7,10 +7,7 @@ import QueueContructModel from '../../model/queue-contruct.model';
 class Play {
     isLink(content: string) {
         const arg = content.split(' ')[1];
-        if (arg && arg.includes('http')) {
-            return true;
-        }
-        return false;
+        return arg && arg.includes('http');
     }
 
     async execute(message: any, serverQueue: any, nextMusic: Boolean) {
