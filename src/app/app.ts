@@ -13,21 +13,8 @@ console.log('BOM DIA MARCELO, INICIOU APLICAÇÃO')
 const client = new Discord.Client();
 // const queue = new Map();
 
-client.once('ready', () => {
-    console.log('Bot Connected');
-});
 
-client.once('reconnecting', () => {
-    console.log('Reconnecting!');
-});
-
-client.once('disconnect', () => {
-    console.log('Disconnect!');
-});
-
-client.login(environment.token);
-
-client.on('message', async message => {
+const readMessage = async (message: Discord.Message) => {
     if (message.author.bot) return;
     if (!message.content.startsWith(environment.prefix)) return;
     let serverQueue = QueueService.get(message.guild.id);
@@ -63,4 +50,14 @@ client.on('message', async message => {
     else {
         message.channel.send('You need to enter a valid command!');
     }
-});
+}
+
+const onReady = () => { console.log('Bot ready') }
+const onReconnecting = () => { console.log('Bot ready') }
+const onDisconnect = () => { console.log('Bot ready') }
+
+client.login(environment.token);
+client.once('ready', onReady);
+client.once('reconnecting', onReconnecting);
+client.once('disconnect', onDisconnect);
+client.on('message', readMessage);
