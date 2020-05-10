@@ -53,8 +53,8 @@ const readMessage = async (message: Discord.Message) => {
 }
 
 const onReady = () => { console.log('Bot ready') }
-const onReconnecting = () => { console.log('Bot ready') }
-const onDisconnect = () => { console.log('Bot ready') }
+const onReconnecting = () => { console.log('Reconnecting...') }
+const onDisconnect = () => { console.log('Disconnect') }
 
 client.login(environment.token);
 client.once('ready', onReady);
