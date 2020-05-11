@@ -86,8 +86,11 @@ const main = async () => {
             }
         } else if (Shared.commandIn(message, favMap)) {
             const key = message.content.replace(environment.prefix, '');
-            message.content = `play ${favMap[key]}`;
-            Play.execute(message, serverQueue, false);
+            message.content = `play ${favMap[key].link}`;
+
+            favMap[key].playlist ?
+                Playlist.addPlaylist(message) :
+                Play.execute(message, serverQueue, false);
         } else {
             message.channel.send('You need to enter a valid command!');
         }

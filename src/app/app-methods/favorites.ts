@@ -7,22 +7,27 @@ class Favorites {
         const data = await FavoritesSchema.find();
 
         data.map((item: any) => (
-            result[item.command] = item.link
+            result[item.command] = {
+                link: item.link,
+                playlist: item.playlist
+            }
         ));
         return result;
     }
 
     async addFav(message: string) {
         try {
-            const key = this.getKey(message);
+            const key: string = this.getKey(message);
 
             if (await this.keyAlreadyExists(key)) {
                 throw 'Comando já utilizado para outra função.'
             }
 
-            const value = this.getValue(message);
+            const value: string = this.getValue(message);
 
-            await this.upsertFavorite(key, value);
+            const playlist: boolean = this.isPlaylist(value);
+
+            await this.upsertFavorite(key, value, playlist);
             return { created: true, command: key };
         }
         catch (error) {
@@ -31,19 +36,23 @@ class Favorites {
         }
     }
 
-    getFormattedMessage(message: string) {
+    getFormattedMessage(message: string): string {
         const params = new RegExp('[^;fav].+').exec(message);
         return params ? params[0] : '';
     }
 
-    getKey(message: string) {
+    getKey(message: string): string {
         const msg = this.getFormattedMessage(message);
         return msg.split('http')[0].trim();
     }
 
-    getValue(message: string) {
+    getValue(message: string): string {
         const msg = this.getFormattedMessage(message);
         return msg.slice(msg.indexOf('http')).trim();
+    }
+
+    isPlaylist(message: string): boolean {
+        return message.includes('list=');
     }
 
     async keyAlreadyExists(key: string) {
@@ -51,14 +60,15 @@ class Favorites {
         return key in allComannds;
     }
 
-    async upsertFavorite(command: string, link: string) {
-        await FavoritesSchema.updateOne({ command }, { command, link }, { upsert: true });
+    async upsertFavorite(command: string, link: string, playlist: boolean) {
+        await FavoritesSchema.updateOne({ command }, { command, link, playlist }, { upsert: true });
     }
 
     refreshFavMap(favMap: any, message: string) {
         const key = this.getKey(message);
-        const value = this.getValue(message);
-        favMap[key] = value;
+        const link = this.getValue(message);
+        const playlist = this.isPlaylist(link);
+        favMap[key] = { link, playlist };
         return favMap;
     }
 
