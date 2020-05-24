@@ -7,7 +7,7 @@ class Shared {
     }
 
     commandIn(message: any, map: Map<String, String>): boolean {
-        const command = message.content.replace(environment.prefix, '');
+        const command = message.replace(environment.prefix, '');
         return command in map;
     }
 }
