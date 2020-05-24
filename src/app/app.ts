@@ -52,7 +52,7 @@ const main = async () => {
             Play.isLink(message.content) ? Play.execute(message, serverQueue, false) : Search.search(message);
             return;
         } else if (Shared.command(message, 'first')) {
-            Play.isLink(message.content) ? Play.execute(message, serverQueue, true) : Search.search(message);
+            Play.isLink(message.content) ? Play.execute(message, serverQueue, true) : handleCommand(message, favMap, serverQueue);
             return;
         } else if (Shared.command(message, 'list')) {
             Playlist.addPlaylist(message);
@@ -77,6 +77,7 @@ const main = async () => {
                 favMap = Favorites.refreshFavMap(favMap, message.content);
                 message.channel.send(`Sucesso ao vincular link ao comando ${environment.prefix}${newFav.command}`);
             }
+        //Comando resposta a uma pesquisa
         } else if (parseInt(message.content.replace(environment.prefix, ""))) {
             if (!(message.author.id in Search.getSearchSession())) {
                 message.channel.send('You have to search for something before choose an item from the list.');
@@ -84,17 +85,31 @@ const main = async () => {
                 const nextMusic = Search.getLastCommandById(message.author.id) == 'first';
                 Play.playSearch(message, serverQueue, nextMusic);
             }
-        } else if (Shared.commandIn(message, favMap)) {
+        //Executando um comando personalizado
+        } else if (Shared.commandIn(message.content, favMap)) {
             const key = message.content.replace(environment.prefix, '');
             message.content = `play ${favMap[key].link}`;
 
             favMap[key].playlist ?
                 Playlist.addPlaylist(message) :
                 Play.execute(message, serverQueue, false);
+        //Comando invalido
         } else {
             message.channel.send('You need to enter a valid command!');
         }
     });
 }
+
+const handleCommand = (message: any, favMap: any, serverQueue: any) => {
+    const command = message.content.substring(message.content.indexOf(' ') + 1);
+
+    if (Shared.commandIn(command, favMap)) {
+        message.content = `play ${favMap[command].link}`;
+        Play.execute(message, serverQueue, true);
+    } else {
+        Search.search(message);
+    }
+}
+
 
 main();
