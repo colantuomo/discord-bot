@@ -11,9 +11,9 @@ class Play {
     }
 
     async execute(message: any, serverQueue: any, nextMusic: Boolean) {
-        console.log(' message.content',  message.content)
+        console.log('message.content', message.content)
         const args = message.content.split(' ');
-    
+
         const voiceChannel = message.member.voiceChannel;
         if (!voiceChannel) return message.channel.send('Oh cabeção! você precisa estar em um canal de voz pra ouvir musica, né?!');
         const permissions = voiceChannel.permissionsFor(message.client.user);
@@ -60,13 +60,13 @@ class Play {
             QueueService.delete(guild.id);
             return;
         }
-        const stream = ytdl(song.url, {highWaterMark: 64000 });
+        const stream = ytdl(song.url, { highWaterMark: 64000 });
         const dispatcher = serverQueue.connection.playStream(stream);
         dispatcher.on('end', () => {
             serverQueue.songs.shift();
             this.play(guild, serverQueue.songs[0]);
         }).on('error', (error: any) => {
-            console.error(error);
+            console.error('== play error: ', error);
         });
         dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
     }

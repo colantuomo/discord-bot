@@ -17,7 +17,8 @@ class YoutubeService {
             });
         }
         catch (error) {
-            throw error + ' (/SEARCH)';
+            error = error.response.data.error;
+            throw `${error.code} - ${error.message} - ${error.errors.length > 0 ? error.errors[0].reason : 'errors arr is empty'} (/SEARCH)`;
         }
     }
 
@@ -34,7 +35,8 @@ class YoutubeService {
             });
         }
         catch (error) {
-            throw error + ' (/VIDEOS)';
+            error = error.response.data.error;
+            throw `${error.code} - ${error.message} - ${error.errors.length > 0 ? error.errors[0].reason : 'errors arr is empty'} (/VIDEOS)`;
         }
     }
 
@@ -50,13 +52,16 @@ class YoutubeService {
                     key: environment.apiKey,
                     part: "snippet",
                     playlistId: playlistId,
+                    access_token: environment.authToken,
                     pageToken: pageToken
                 },
                 responseType: 'json'
             });
         }
         catch (error) {
-            throw error + ' (/PLAYLISTITEMS)';
+            error = error.response.data.error;
+            console.log('errors: ', error.errors);
+            throw `${error.code} - ${error.message} - ${error.errors.length > 0 ? error.errors[0].reason : 'errors arr is empty'} (/PLAYLISTITEMS)`;
         }
     }
 
