@@ -49,7 +49,7 @@ const main = async () => {
         let serverQueue = QueueService.get(message.guild.id);
 
         if (Shared.command(message, 'play')) {
-            Play.isLink(message.content) ? Play.execute(message, serverQueue, false) : Search.search(message);
+            Play.isLink(message.content) ? Play.execute(message, serverQueue, false) : handleCommand(message, favMap, serverQueue);
             return;
         } else if (Shared.command(message, 'first')) {
             Play.isLink(message.content) ? Play.execute(message, serverQueue, true) : handleCommand(message, favMap, serverQueue);
