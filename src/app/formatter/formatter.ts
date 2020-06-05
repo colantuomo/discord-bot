@@ -6,7 +6,6 @@ class Formatter {
             const hasMinute = duration.includes("M");
             const hasSecond = duration.includes("S");
             duration = duration.replace(/PT|S/gi, "");
-            console.log('duration: ', duration);
 
             let hours = '00';
             let minutes = '00';
@@ -43,10 +42,7 @@ class Formatter {
     }
 
     formatMessage(msg: string) {
-        if (msg) {
-            return msg.replace(";play ", "");
-        }
-        return msg;
+        return !msg ? msg : msg.replace(/(;play |;first )/g, "");
     }
 
     formatQueue(serverQueue: any) {
