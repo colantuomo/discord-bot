@@ -1,5 +1,6 @@
-import EnvironmentModel from '../model/environment.model';
-import * as dotenv from "dotenv";
+
+import { EnvironmentModel } from '../model/environment.model';
+import * as dotenv from 'dotenv'
 dotenv.config();
 
 const environment: EnvironmentModel = {

@@ -2,7 +2,7 @@ import ytdl from 'ytdl-core';
 import QueueService from '../../service/queue.service';
 import Search from './search';
 import environment from '../../infra/environment';
-import QueueContructModel from '../../model/queue-contruct.model';
+import { QueueContructModel } from '../../model/queue-contruct.model';
 
 class Play {
     isLink(content: string) {

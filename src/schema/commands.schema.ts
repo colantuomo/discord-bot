@@ -5,5 +5,5 @@ const commandsSchema = new mongoose.Schema({
     desc: { type: String, required: true }
 });
 
-const instance = mongoose.model('Commands', commandsSchema);
-export = instance;
+const Commands = mongoose.model('Commands', commandsSchema);
+export { Commands };

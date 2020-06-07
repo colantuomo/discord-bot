@@ -10,40 +10,26 @@ import Formatter from './formatter/formatter';
 import QueueService from '../service/queue.service';
 import environment from '../infra/environment';
 import db from '../db/db';
-// import CommandsSchema from '../schema/commands.schema';
+import { DiscordEvents } from './app-methods/enums';
+
+const ready = () => { };
+const disconnect = () => { };
+const reconnecting = () => { };
 
 const main = async () => {
     console.log('\nBOM DIA MARCELO, INICIOU APLICAÇÃO');
     const client = new Discord.Client();
 
-    // Inserir novo(s) comando
-    // CommandsSchema.insertMany([
-    //     {
-    //         'command': 'play',
-    //         'desc': 'desc'
-    //     }
-    // ]
-    // );
-
     await db.init();
-
     let favMap = await Favorites.getFavoritesMap();
 
-    client.once('ready', () => {
-        console.log('\nBot Connected');
-    });
-
-    client.once('reconnecting', () => {
-        console.log('Reconnecting!');
-    });
-
-    client.once('disconnect', () => {
-        console.log('Disconnect!');
-    });
-
     client.login(environment.token);
+    client.once(DiscordEvents.READY, ready);
+    client.once(DiscordEvents.RECONNECTING, reconnecting);
+    client.once(DiscordEvents.DISCONNECT, disconnect);
 
-    client.on('message', async message => {
+
+    client.on(DiscordEvents.MESSAGE, async message => {
         if (message.author.bot) return;
         if (!message.content.startsWith(environment.prefix)) return;
         let serverQueue = QueueService.get(message.guild.id);
@@ -77,7 +63,7 @@ const main = async () => {
                 favMap = Favorites.refreshFavMap(favMap, message.content);
                 message.channel.send(`Sucesso ao vincular link ao comando ${environment.prefix}${newFav.command}`);
             }
-        //Comando resposta a uma pesquisa
+            //Comando resposta a uma pesquisa
         } else if (parseInt(message.content.replace(environment.prefix, ""))) {
             if (!(message.author.id in Search.getSearchSession())) {
                 message.channel.send('You have to search for something before choose an item from the list.');
@@ -85,7 +71,7 @@ const main = async () => {
                 const nextMusic = Search.getLastCommandById(message.author.id) == 'first';
                 Play.playSearch(message, serverQueue, nextMusic);
             }
-        //Executando um comando personalizado
+            //Executando um comando personalizado
         } else if (Shared.commandIn(message.content, favMap)) {
             const key = message.content.replace(environment.prefix, '');
             message.content = `play ${favMap[key].link}`;
@@ -93,7 +79,7 @@ const main = async () => {
             favMap[key].playlist ?
                 Playlist.addPlaylist(message) :
                 Play.execute(message, serverQueue, false);
-        //Comando invalido
+            //Comando invalido
         } else {
             message.channel.send('You need to enter a valid command!');
         }

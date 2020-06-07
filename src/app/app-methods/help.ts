@@ -1,9 +1,9 @@
-import CommandsSchema from '../../schema/commands.schema';
+import { Commands } from '../../schema/commands.schema';
 
 class Help {
     async getCommandsMap() {
         let result: any = {};
-        const data = await CommandsSchema.find();
+        const data = await Commands.find();
         data.map((item: any) => (
             result[item.command] = item.desc
         ));

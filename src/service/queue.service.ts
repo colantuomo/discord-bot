@@ -1,4 +1,5 @@
-import QueueContructModel from '../model/queue-contruct.model';
+import { QueueContructModel } from "../model/queue-contruct.model";
+
 
 class QueueService {
     instance: any;
