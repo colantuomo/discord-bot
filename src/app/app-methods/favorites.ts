@@ -56,7 +56,7 @@ class Favorites {
     }
 
     async keyAlreadyExists(key: string) {
-        const allComannds = await Help.getCommandsMap();
+        const allComannds: any = await Help.getCommandsMap();
         return key in allComannds;
     }
 

@@ -6,6 +6,7 @@ import Skip from './app-methods/skip';
 import Stop from './app-methods/stop';
 import Search from './app-methods/search';
 import Favorites from './app-methods/favorites';
+import Help from './app-methods/help';
 import Formatter from './formatter/formatter';
 import QueueService from '../service/queue.service';
 import environment from '../infra/environment';
@@ -93,9 +94,13 @@ const main = async () => {
             favMap[key].playlist ?
                 Playlist.addPlaylist(message) :
                 Play.execute(message, serverQueue, false);
-        //Comando invalido
-        } else {
-            message.channel.send('You need to enter a valid command!');
+        //Helper para listar os comandos
+        } else if (Shared.command(message, 'help')) {
+            let commands = await Help.formattedCommands();
+            message.channel.send(commands);
+        }
+        else {
+            message.channel.send(`Comando inválido. Caso esteja com dúvida de como utilizar os comandos do bot digite ${environment.prefix}help`);
         }
     });
 }
