@@ -11,7 +11,6 @@ import Formatter from './formatter/formatter';
 import QueueService from '../service/queue.service';
 import environment from '../infra/environment';
 import db from '../db/db';
-// import CommandsSchema from '../schema/commands.schema';
 
 const main = async () => {
     console.log('\nBOM DIA MARCELO, INICIOU APLICAÇÃO');
