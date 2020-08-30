@@ -17,15 +17,6 @@ const main = async () => {
     console.log('\nBOM DIA MARCELO, INICIOU APLICAÇÃO');
     const client = new Discord.Client();
 
-    // Inserir novo(s) comando
-    // CommandsSchema.insertMany([
-    //     {
-    //         'command': 'play',
-    //         'desc': 'desc'
-    //     }
-    // ]
-    // );
-
     await db.init();
 
     let favMap = await Favorites.getFavoritesMap();
