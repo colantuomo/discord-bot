@@ -14,7 +14,7 @@ class Play {
         console.log('message.content', message.content)
         const args = message.content.split(' ');
 
-        const voiceChannel = message.member.voiceChannel;
+        const voiceChannel = message.member.voice.channel;
         if (!voiceChannel) return message.channel.send('Oh cabeção! você precisa estar em um canal de voz pra ouvir musica, né?!');
         const permissions = voiceChannel.permissionsFor(message.client.user);
         if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
@@ -40,7 +40,7 @@ class Play {
             queueContruct.songs.push(song);
             try {
                 var connection = await voiceChannel.join();
-                queueContruct.connection = connection;;
+                queueContruct.connection = connection;
                 this.play(message.guild, queueContruct.songs[0]);
             } catch (err) {
                 message.channel.send('Ih raaapaz! Encontrei um problema ao entrar no canal de voz. ', JSON.stringify(err));
@@ -60,9 +60,9 @@ class Play {
             QueueService.delete(guild.id);
             return;
         }
-        const stream = ytdl(song.url, { highWaterMark: 64000 });
-        const dispatcher = serverQueue.connection.playStream(stream);
-        dispatcher.on('end', () => {
+        const stream = ytdl(song.url, { filter: 'audioonly', highWaterMark: 64000 });
+        const dispatcher = serverQueue.connection.play(stream);
+        dispatcher.on('finish', () => {
             serverQueue.songs.shift();
             this.play(guild, serverQueue.songs[0]);
         }).on('error', (error: any) => {

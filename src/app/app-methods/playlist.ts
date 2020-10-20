@@ -7,11 +7,11 @@ class Playlist {
 
     async addPlaylist(message: any) {
         const args = message.content.split(' ');
-        const voiceChannel = message.member.voiceChannel;
+        const voiceChannel = message.member.voice.channel;
         let songsList = []
         //pega a penas a url do youtube e manda para o metodo getPlaylistData para pegar a lista de musicas
         const playlistData = await this.getPlaylistData(args[1], "");
-        if(playlistData.errormessage) return;
+        if (playlistData.errormessage) return;
         let nextPageToken = playlistData.nextPageToken;
         const numberPages = (playlistData.pageInfo.totalResults / playlistData.pageInfo.resultsPerPage);
         for (let page = 1; page <= numberPages; page++) {

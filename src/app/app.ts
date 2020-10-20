@@ -15,6 +15,7 @@ import db from '../db/db'
 const main = async () => {
   console.log('\nBOM DIA MARCELO, INICIOU APLICAÇÃO')
   const client = new Discord.Client()
+  client?.user?.setPresence({ status: 'dnd' })
 
   await db.init()
 
@@ -22,6 +23,7 @@ const main = async () => {
 
   client.once('ready', () => {
     console.log('\nBot Connected')
+    client?.user?.setPresence({ status: 'online' })
   })
 
   client.once('reconnecting', () => {
@@ -59,7 +61,7 @@ const main = async () => {
       Stop.stop(message, serverQueue)
       return
     } else if (Shared.command(message, 'leave')) {
-      serverQueue.voiceChannel.leave()
+      serverQueue.voice.channel.leave()
     } else if (Shared.command(message, 'queue')) {
       let queue = Formatter.formatQueue(serverQueue)
       message.channel.send(queue)
