@@ -37,7 +37,7 @@ const main = async () => {
   client.on('message', async (message) => {
     if (message.author.bot) return
     if (!message.content.startsWith(environment.prefix)) return
-    let serverQueue = QueueService.get(message.guild.id)
+    let serverQueue = QueueService.get(message?.guild?.id)
 
     if (Shared.command(message, 'play')) {
       Play.isLink(message.content)
