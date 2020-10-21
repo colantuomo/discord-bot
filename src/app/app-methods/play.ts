@@ -60,13 +60,20 @@ class Play {
             QueueService.delete(guild.id);
             return;
         }
-        const stream = ytdl(song.url, { filter: 'audioonly', highWaterMark: 64000 });
+        const streamOptions: ytdl.downloadOptions = {
+            quality: 'highestaudio',
+            filter: 'audioonly',
+            highWaterMark: 1 << 25,
+        }
+        const stream = ytdl(song.url, streamOptions);
         const dispatcher = serverQueue.connection.play(stream);
         dispatcher.on('finish', () => {
             serverQueue.songs.shift();
             this.play(guild, serverQueue.songs[0]);
         }).on('error', (error: any) => {
             console.error('== play error: ', error);
+            serverQueue.songs.shift();
+            this.play(guild, serverQueue.songs[0]);
         });
         dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
     }
