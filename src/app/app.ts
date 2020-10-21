@@ -1,14 +1,15 @@
 import Discord from 'discord.js'
 import Play from './app-methods/play'
 import Playlist from './app-methods/playList'
-import Shared from './shared/shared'
 import Skip from './app-methods/skip'
 import Stop from './app-methods/stop'
 import Search from './app-methods/search'
 import Favorites from './app-methods/favorites'
 import Help from './app-methods/help'
+import Volume from './app-methods/volume'
 import Formatter from './formatter/formatter'
 import QueueService from '../service/queue.service'
+import Shared from './shared/shared'
 import environment from '../infra/environment'
 import db from '../db/db'
 
@@ -54,21 +55,9 @@ const main = async () => {
     } else if (Shared.command(message, 'skip')) {
       Skip.skip(message, serverQueue)
     } else if (Shared.command(message, 'volume')) {
-      const volumeDict: any = {
-        '1': 0.1,
-        '2': 0.4,
-        '3': 0.6,
-        '4': 0.8,
-        '5': 1,
-        '6': 1.2,
-        '7': 1.4,
-        '8': 1.6,
-        '9': 1.8,
-        '10': 2,
-      }
       const msg = message.content.split(' ');
-      const volume = msg.length > 1 ? msg[1] : 5;
-      serverQueue.connection.dispatcher.setVolume(volumeDict[volume]);
+      const volume = msg.length > 1 ? msg[1].toString() : '5';
+      serverQueue.connection.dispatcher.setVolume(Volume.getVolume(volume));
     } else if (Shared.command(message, 'stop')) {
       Stop.stop(message, serverQueue)
     } else if (Shared.command(message, 'leave')) {
