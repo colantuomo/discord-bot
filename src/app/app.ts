@@ -45,21 +45,32 @@ const main = async () => {
       Play.isLink(message.content)
         ? Play.execute(message, serverQueue, false)
         : handleCommand(message, favMap, serverQueue)
-      return
     } else if (Shared.command(message, 'first')) {
       Play.isLink(message.content)
         ? Play.execute(message, serverQueue, true)
         : handleCommand(message, favMap, serverQueue)
-      return
     } else if (Shared.command(message, 'list')) {
       Playlist.addPlaylist(message)
-      return
     } else if (Shared.command(message, 'skip')) {
       Skip.skip(message, serverQueue)
-      return
+    } else if (Shared.command(message, 'volume')) {
+      const volumeDict: any = {
+        '1': 0.1,
+        '2': 0.4,
+        '3': 0.6,
+        '4': 0.8,
+        '5': 1,
+        '6': 1.2,
+        '7': 1.4,
+        '8': 1.6,
+        '9': 1.8,
+        '10': 2,
+      }
+      const msg = message.content.split(' ');
+      const volume = msg.length > 1 ? msg[1] : 5;
+      serverQueue.connection.dispatcher.setVolume(volumeDict[volume]);
     } else if (Shared.command(message, 'stop')) {
       Stop.stop(message, serverQueue)
-      return
     } else if (Shared.command(message, 'leave')) {
       serverQueue.voice.channel.leave()
     } else if (Shared.command(message, 'queue')) {

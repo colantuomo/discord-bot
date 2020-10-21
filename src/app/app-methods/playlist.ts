@@ -49,7 +49,6 @@ class Playlist {
         } catch (err) {
             message.channel.send('I encountered a problem connecting to the voice channel ', JSON.stringify(err));
             QueueService.delete(message.guild.id);
-            return message.channel.send(err);
         }
     }
 

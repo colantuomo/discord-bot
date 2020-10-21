@@ -3,6 +3,7 @@ import QueueService from '../../service/queue.service';
 import Search from './search';
 import environment from '../../infra/environment';
 import QueueContructModel from '../../model/queue-contruct.model';
+import { BroadcastDispatcher } from 'discord.js';
 
 class Play {
     isLink(content: string) {
@@ -15,10 +16,14 @@ class Play {
         const args = message.content.split(' ');
 
         const voiceChannel = message.member.voice.channel;
-        if (!voiceChannel) return message.channel.send('Oh cabeção! você precisa estar em um canal de voz pra ouvir musica, né?!');
+        if (!voiceChannel) {
+            message.channel.send('Oh cabeção! você precisa estar em um canal de voz pra ouvir musica, né?!');
+            return;
+        }
         const permissions = voiceChannel.permissionsFor(message.client.user);
         if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
-            return message.channel.send('O Jovem! Eu preciso de permissões de falar e conectar!');
+            message.channel.send('O Jovem! Eu preciso de permissões de falar e conectar!');
+            return;
         }
         console.log("ARGS 1", args[1])
         const songInfo = await ytdl.getInfo(args[1]);
@@ -33,7 +38,7 @@ class Play {
                 voiceChannel: voiceChannel,
                 connection: null,
                 songs: [],
-                volume: 0.7,
+                volume: 0.03,
                 playing: true,
             };
             QueueService.set(message.guild.id, queueContruct);
@@ -45,11 +50,10 @@ class Play {
             } catch (err) {
                 message.channel.send('Ih raaapaz! Encontrei um problema ao entrar no canal de voz. ', JSON.stringify(err));
                 QueueService.queue.delete(message.guild.id);
-                return message.channel.send(err);
             }
         } else {
             nextMusic ? serverQueue.songs.splice(1, 0, song) : serverQueue.songs.push(song);
-            return message.channel.send(`${song.title} foi adicionado a fila!`);
+            message.channel.send(`${song.title} foi adicionado a fila!`);
         }
     }
 
@@ -66,7 +70,8 @@ class Play {
             highWaterMark: 1 << 25,
         }
         const stream = ytdl(song.url, streamOptions);
-        const dispatcher = serverQueue.connection.play(stream);
+        const dispatcher: BroadcastDispatcher = serverQueue.connection.play(stream);
+        dispatcher.setVolume(serverQueue.volume);
         dispatcher.on('finish', () => {
             serverQueue.songs.shift();
             this.play(guild, serverQueue.songs[0]);
@@ -75,7 +80,6 @@ class Play {
             serverQueue.songs.shift();
             this.play(guild, serverQueue.songs[0]);
         });
-        dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
     }
 
     playSearch(message: any, serverQueue: any, nextMusic: Boolean) {
