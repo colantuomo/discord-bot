@@ -11,7 +11,10 @@ class Playlist {
         let songsList = []
         //pega a penas a url do youtube e manda para o metodo getPlaylistData para pegar a lista de musicas
         const playlistData = await this.getPlaylistData(args[1], "");
-        if (playlistData.errormessage) return;
+        if (playlistData.errormessage) {
+            message.channel.send('Então meu querido, deu um erro aqui para identificar o id dessa playlist. Tenta de novo, mas se não der não deu.');
+            return;
+        }
         let nextPageToken = playlistData.nextPageToken;
         const numberPages = (playlistData.pageInfo.totalResults / playlistData.pageInfo.resultsPerPage);
         for (let page = 1; page <= numberPages; page++) {
@@ -57,7 +60,6 @@ class Playlist {
             const result = await YoutubeService.getPlaylist(url, nextPageToken);
             return result.data;
         } catch (error) {
-            // this.serverQueue.textChannel.send('Erro ao baixar playlist do Youtube');
             console.log('== Error: ', error);
             return { errormessage: error };
         }

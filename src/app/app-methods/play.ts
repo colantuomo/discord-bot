@@ -12,7 +12,6 @@ class Play {
     }
 
     async execute(message: any, serverQueue: any, nextMusic: Boolean) {
-        console.log('message.content', message.content)
         const args = message.content.split(' ');
 
         const voiceChannel = message.member.voice.channel;
@@ -25,13 +24,27 @@ class Play {
             message.channel.send('O Jovem! Eu preciso de permissões de falar e conectar!');
             return;
         }
-        console.log("ARGS 1", args[1])
-        const songInfo = await ytdl.getInfo(args[1]);
+
+        const url: string = args.length > 0 ? args[1] : '';
+
+        console.log("==== URL: ", url)
+
+        const songInfo = await ytdl.getBasicInfo(url.toString()).catch((error: any) => {
+            console.log('== ERROR YTDL: ', error);
+        });
+
+        if (!songInfo) {
+            message.channel.send('Deu aquele erro la men');
+            return;
+        }
+
         const song = {
             title: songInfo.videoDetails.title,
             url: songInfo.videoDetails.video_url,
         };
+
         console.log('SONG', song)
+
         if (!serverQueue) {
             const queueContruct: QueueContructModel = {
                 textChannel: message.channel,
@@ -91,7 +104,6 @@ class Play {
             const searchSession = Search.getSearchSession();
             let videoId = searchSession[userId][msg];
             message.content = environment.prefix + 'play ' + 'https://www.youtube.com/watch?v=' + videoId;
-            console.log('message content', message.content)
             this.execute(message, serverQueue, nextMusic);
         }
     }
