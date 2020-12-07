@@ -1,14 +1,19 @@
 import QueueContructModel from '../model/queue-contruct.model';
 
 class QueueService {
-    instance: any;
+    private static instance: QueueService;
     queue = new Map();
 
-    constructor() {
-        if (!instance) {
-            this.instance = this;
+    private constructor() {
+
+    }
+
+    public static getInstance(): QueueService {
+        if (!QueueService.instance) {
+            QueueService.instance = new QueueService();
         }
-        return instance;
+
+        return QueueService.instance;
     }
 
     get(id: any) {
@@ -25,5 +30,4 @@ class QueueService {
 
 }
 
-const instance = new QueueService();
-export = instance;
+export default QueueService;

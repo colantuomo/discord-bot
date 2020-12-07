@@ -4,14 +4,22 @@ import Play from './play';
 
 class Playlist {
     serverQueue: any;
+    queueService: QueueService;
+
+    constructor() {
+        this.queueService = QueueService.getInstance();
+    }
 
     async addPlaylist(message: any) {
         const args = message.content.split(' ');
-        const voiceChannel = message.member.voiceChannel;
+        const voiceChannel = message.member.voice.channel;
         let songsList = []
         //pega a penas a url do youtube e manda para o metodo getPlaylistData para pegar a lista de musicas
         const playlistData = await this.getPlaylistData(args[1], "");
-        if(playlistData.errormessage) return;
+        if (playlistData.errormessage) {
+            message.channel.send('Então meu querido, deu um erro aqui para identificar o id dessa playlist. Tenta de novo, mas se não der não deu.');
+            return;
+        }
         let nextPageToken = playlistData.nextPageToken;
         const numberPages = (playlistData.pageInfo.totalResults / playlistData.pageInfo.resultsPerPage);
         for (let page = 1; page <= numberPages; page++) {
@@ -21,7 +29,7 @@ class Playlist {
         }
         // Faz um for na lista de musicas para pegar o nome e url do video
         for (let item of playlistData.items) {
-            this.serverQueue = QueueService.get(message.guild.id);
+            this.serverQueue = this.queueService.get(message.guild.id);
             const linkYoutube = 'https://www.youtube.com/watch?v=' + item.snippet.resourceId.videoId + '&playlists=' + item.snippet.playlistId;
             const song = {
                 title: item.snippet.title,
@@ -37,19 +45,18 @@ class Playlist {
             voiceChannel: voiceChannel,
             connection: null,
             songs: songsList,
-            volume: 0.7,
+            volume: 0.05,
             playing: true,
         };
 
-        QueueService.set(message.guild.id, queueContruct);
+        this.queueService.set(message.guild.id, queueContruct);
         try {
             var connection = await voiceChannel.join();
             queueContruct.connection = connection;
             Play.play(message.guild, queueContruct.songs[0]);
         } catch (err) {
             message.channel.send('I encountered a problem connecting to the voice channel ', JSON.stringify(err));
-            QueueService.delete(message.guild.id);
-            return message.channel.send(err);
+            this.queueService.delete(message.guild.id);
         }
     }
 
@@ -58,7 +65,6 @@ class Playlist {
             const result = await YoutubeService.getPlaylist(url, nextPageToken);
             return result.data;
         } catch (error) {
-            // this.serverQueue.textChannel.send('Erro ao baixar playlist do Youtube');
             console.log('== Error: ', error);
             return { errormessage: error };
         }

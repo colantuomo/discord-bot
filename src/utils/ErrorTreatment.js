@@ -3,7 +3,7 @@ class ErrorTreatment {
     constructor() { }
 
     inVoiceChannel(message) {
-        return !message.member.voiceChannel ? false : true;
+        return !message.member.voice.channel ? false : true;
     }
 
     hasPrefix(message, prefix) {
