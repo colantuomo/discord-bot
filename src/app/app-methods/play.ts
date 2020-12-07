@@ -6,6 +6,12 @@ import QueueContructModel from '../../model/queue-contruct.model';
 import { BroadcastDispatcher } from 'discord.js';
 
 class Play {
+    queueService: QueueService;
+
+    constructor() {
+        this.queueService = QueueService.getInstance()
+    }
+
     isLink(content: string) {
         const arg = content.split(' ')[1];
         return arg && arg.includes('http');
@@ -54,7 +60,7 @@ class Play {
                 volume: 0.05,
                 playing: true,
             };
-            QueueService.set(message.guild.id, queueContruct);
+            this.queueService.set(message.guild.id, queueContruct);
             queueContruct.songs.push(song);
             try {
                 var connection = await voiceChannel.join();
@@ -62,7 +68,7 @@ class Play {
                 this.play(message.guild, queueContruct.songs[0]);
             } catch (err) {
                 message.channel.send('Ih raaapaz! Encontrei um problema ao entrar no canal de voz. ', JSON.stringify(err));
-                QueueService.queue.delete(message.guild.id);
+                this.queueService.queue.delete(message.guild.id);
             }
         } else {
             nextMusic ? serverQueue.songs.splice(1, 0, song) : serverQueue.songs.push(song);
@@ -71,10 +77,10 @@ class Play {
     }
 
     play(guild: any, song: any) {
-        const serverQueue = QueueService.get(guild.id);
+        const serverQueue = this.queueService.get(guild.id);
         if (!song) {
             serverQueue.voiceChannel.leave();
-            QueueService.delete(guild.id);
+            this.queueService.delete(guild.id);
             return;
         }
         const streamOptions: ytdl.downloadOptions = {

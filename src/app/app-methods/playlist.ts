@@ -4,6 +4,11 @@ import Play from './play';
 
 class Playlist {
     serverQueue: any;
+    queueService: QueueService;
+
+    constructor() {
+        this.queueService = QueueService.getInstance();
+    }
 
     async addPlaylist(message: any) {
         const args = message.content.split(' ');
@@ -24,7 +29,7 @@ class Playlist {
         }
         // Faz um for na lista de musicas para pegar o nome e url do video
         for (let item of playlistData.items) {
-            this.serverQueue = QueueService.get(message.guild.id);
+            this.serverQueue = this.queueService.get(message.guild.id);
             const linkYoutube = 'https://www.youtube.com/watch?v=' + item.snippet.resourceId.videoId + '&playlists=' + item.snippet.playlistId;
             const song = {
                 title: item.snippet.title,
@@ -44,14 +49,14 @@ class Playlist {
             playing: true,
         };
 
-        QueueService.set(message.guild.id, queueContruct);
+        this.queueService.set(message.guild.id, queueContruct);
         try {
             var connection = await voiceChannel.join();
             queueContruct.connection = connection;
             Play.play(message.guild, queueContruct.songs[0]);
         } catch (err) {
             message.channel.send('I encountered a problem connecting to the voice channel ', JSON.stringify(err));
-            QueueService.delete(message.guild.id);
+            this.queueService.delete(message.guild.id);
         }
     }
 
