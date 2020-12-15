@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "nodemon src/app/app.ts",
-        "test": "npx jest --passWithNoTests"
+        "test": "jest --passWithNoTests"
     },
     "author": "Markin DJ - Team",
     "license": "ISC",
