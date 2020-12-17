@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "nodemon src/app/app.ts",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "jest --passWithNoTests"
     },
     "author": "Markin DJ - Team",
     "license": "ISC",
@@ -27,8 +27,14 @@
         "ytdl-core": "^4.1.0"
     },
     "devDependencies": {
+        "@babel/core": "^7.12.10",
+        "@babel/preset-env": "^7.12.10",
+        "@babel/preset-typescript": "^7.12.7",
+        "@types/jest": "^26.0.19",
         "@types/mongoose": "^5.10.1",
-        "nodemon": "^2.0.6",
-        "dot-prop": ">=6.0.1"
+        "babel-jest": "^26.6.3",
+        "dot-prop": ">=6.0.1",
+        "jest": "^26.6.3",
+        "nodemon": "^2.0.6"
     }
 }
