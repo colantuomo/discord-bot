@@ -1,11 +1,18 @@
-import environment from '../../infra/environment';
-import YoutubeService from '../../service/youtube.service';
-import Formatter from '../formatter/formatter';
+import { environment } from '../../infra/environment';
+import YoutubeService from '../apis/youtube.service';
+import Formatter from '../utils/formatter/formatter';
 
-class Search {
+export default class Search {
 
     searchSession: any = {};
     lastCommand: any = {};
+    youtube: YoutubeService;
+    formatter: Formatter;
+
+    constructor() {
+        this.youtube = new YoutubeService();
+        this.formatter = new Formatter();
+    }
 
     getSearchSession() {
         return this.searchSession;
@@ -28,7 +35,7 @@ class Search {
             const userId = message.author.id;
             this.setLastCommand(userId, message.content.split(' ')[0].replace(environment.prefix, ''));
 
-            const result: any = await YoutubeService.get(Formatter.formatMessage(message.content));
+            const result: any = await this.youtube.get(this.formatter.formatMessage(message.content));
 
             const idList = result.data.items.map((video: any) => {
                 return video.id.videoId;
@@ -36,7 +43,7 @@ class Search {
 
             const videoList: any = [];
             for (let item of idList) {
-                const result: any = await YoutubeService.getById(item);
+                const result: any = await this.youtube.getById(item);
                 videoList.push(...result.data.items);
             }
             this.showOptions(message, videoList);
@@ -55,7 +62,7 @@ class Search {
             videosList.forEach((video: any, i: number) => {
                 let title = video.snippet.title;
                 let channelTitle = video.snippet.channelTitle;
-                let duration = Formatter.formatDuration(video.contentDetails.duration);
+                let duration = this.formatter.formatDuration(video.contentDetails.duration);
                 let index = i + 1;
                 msg += `${index}. ${title} | ${channelTitle} (${duration})\r\n`;
                 this.searchSession[userId][index] = video.id;
@@ -73,6 +80,3 @@ class Search {
     }
 
 }
-
-const instance = new Search();
-export = instance;

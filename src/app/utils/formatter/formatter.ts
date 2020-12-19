@@ -1,4 +1,4 @@
-class Formatter {
+export default class Formatter {
 
     formatDuration(duration: string) {
         if (duration) {
@@ -54,7 +54,3 @@ class Formatter {
         return queue;
     }
 }
-
-
-const instance = new Formatter();
-export = instance;

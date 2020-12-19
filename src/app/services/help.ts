@@ -1,8 +1,8 @@
-import CommandsSchema from '../../schema/commands.schema';
-import environment from '../../infra/environment';
+import CommandsSchema from '../../db/schema/commands.schema';
+import { environment } from '../../infra/environment';
 
 class Help {
-    async getCommands(){
+    async getCommands() {
         return CommandsSchema.find();
     }
 
