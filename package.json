@@ -5,6 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "nodemon src/app/app.ts",
+        "dev": "ts-node-dev --transpile-only src/app/app.ts",
         "test": "jest --passWithNoTests"
     },
     "author": "Markin DJ - Team",
@@ -35,6 +36,7 @@
         "babel-jest": "^26.6.3",
         "dot-prop": ">=6.0.1",
         "jest": "^26.6.3",
-        "nodemon": "^2.0.6"
+        "nodemon": "^2.0.6",
+        "ts-node-dev": "^1.1.1"
     }
 }
