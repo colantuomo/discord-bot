@@ -1,5 +1,9 @@
 # discord-bot / markin DJ
-  
+<p>
+  <a href="https://github.com/colantuomo/discord-bot/issues">
+    <img alt="Issues" src="https://img.shields.io/github/issues/colantuomo/discord-bot?style=for-the-badge?color=%2323d18c&style=for-the-badge&colorA=1C1D27">
+  </a>
+</p>
 
 ## Installation
 
