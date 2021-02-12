@@ -1,4 +1,5 @@
 import Discord from 'discord.js'
+import * as dotenv from 'dotenv'
 import Play from './app-methods/play'
 import Playlist from './app-methods/playList'
 import Skip from './app-methods/skip'
@@ -10,33 +11,20 @@ import Volume from './app-methods/volume'
 import Formatter from './formatter/formatter'
 import QueueService from '../service/queue.service'
 import Shared from './shared/shared'
-import environment from '../infra/environment'
+import { environment } from '../infra/environment'
 import db from '../db/db'
+import Events from './events/'
 
 const main = async () => {
     console.log('\nBOM DIA MARCELO, INICIOU APLICAÇÃO')
     const client = new Discord.Client()
     const queueService = QueueService.getInstance()
-    client?.user?.setPresence({ status: 'dnd' })
-
+    dotenv.config()
     await db.init()
+    new Events.Common(client)
+    new Events.Message(client)
 
     let favMap = await Favorites.getFavoritesMap()
-
-    client.once('ready', () => {
-        console.log('\nBot Connected')
-        client?.user?.setPresence({ status: 'online' })
-    })
-
-    client.once('reconnecting', () => {
-        console.log('Reconnecting!')
-    })
-
-    client.once('disconnect', () => {
-        console.log('Disconnect!')
-    })
-
-    client.login(environment.token)
 
     client.on('message', async (message: any) => {
         if (message.author.bot) return
@@ -55,9 +43,11 @@ const main = async () => {
         } else if (Shared.command(message, 'skip')) {
             Skip.skip(message, serverQueue)
         } else if (Shared.command(message, 'volume')) {
-            const msg = message.content.split(' ');
-            const volume = msg.length > 1 ? msg[1].toString() : '5';
-            serverQueue.connection.dispatcher.setVolume(Volume.getVolume(volume));
+            const msg = message.content.split(' ')
+            const volume = msg.length > 1 ? msg[1].toString() : '5'
+            serverQueue.connection.dispatcher.setVolume(
+                Volume.getVolume(volume)
+            )
         } else if (Shared.command(message, 'stop')) {
             Stop.stop(message, serverQueue)
         } else if (Shared.command(message, 'leave')) {
