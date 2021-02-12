@@ -1,4 +1,4 @@
-import environment from '../../infra/environment';
+import { environment } from '../../infra/environment';
 
 class Shared {
     // Verificar tipo do Message

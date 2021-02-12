@@ -1,11 +1,11 @@
-import QueueContructModel from '../model/queue-contruct.model';
+import QueueContructModel from '../models/server-manager.model';
 
 class QueueService {
     private static instance: QueueService;
-    queue = new Map();
+    queue: Map<string, QueueContructModel>;
 
     private constructor() {
-
+        this.queue = new Map<string, QueueContructModel>();
     }
 
     public static getInstance(): QueueService {
@@ -16,18 +16,17 @@ class QueueService {
         return QueueService.instance;
     }
 
-    get(id: any) {
+    get(id: string): QueueContructModel | undefined {
         return this.queue.get(id);
     }
 
-    set(id: any, queueContruct: QueueContructModel) {
+    set(id: string, queueContruct: QueueContructModel): void {
         this.queue.set(id, queueContruct);
     }
 
-    delete(id: any) {
-        this.queue.delete(id);
+    disconnect(id: string): void {
+        this.queue.disconnect(id);
     }
-
 }
 
 export default QueueService;

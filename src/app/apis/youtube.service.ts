@@ -1,7 +1,7 @@
 import axios from 'axios';
-import environment from '../infra/environment';
+import { environment } from '../../infra/environment';
 
-class YoutubeService {
+export default class YoutubeService {
     async get(message: any) {
         try {
             return await axios.get(environment.googleBaseURL + '/search', {
@@ -66,6 +66,3 @@ class YoutubeService {
     }
 
 }
-
-const instance = new YoutubeService();
-export = instance;

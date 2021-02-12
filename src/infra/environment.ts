@@ -1,4 +1,3 @@
-import EnvironmentModel from '../model/environment.model'
 const environment = {
     prefix: ';',
     googleBaseURL: 'https://www.googleapis.com/youtube/v3',

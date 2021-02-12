@@ -1,5 +1,5 @@
-import FavoritesSchema from '../../schema/favorites.schema';
-import Help from '../app-methods/help';
+import FavoritesSchema from '../../db/schema/favorites.schema';
+import Help from './help';
 
 class Favorites {
     async getFavoritesMap() {
@@ -36,34 +36,6 @@ class Favorites {
         }
     }
 
-    getFormattedMessage(message: string): string {
-        const params = new RegExp('[^;fav].+').exec(message);
-        return params ? params[0] : '';
-    }
-
-    getKey(message: string): string {
-        const msg = this.getFormattedMessage(message);
-        return msg.split('http')[0].trim();
-    }
-
-    getValue(message: string): string {
-        const msg = this.getFormattedMessage(message);
-        return msg.slice(msg.indexOf('http')).trim();
-    }
-
-    isPlaylist(message: string): boolean {
-        return message.includes('list=');
-    }
-
-    async keyAlreadyExists(key: string) {
-        const allComannds: any = await Help.getCommandsMap();
-        return key in allComannds;
-    }
-
-    async upsertFavorite(command: string, link: string, playlist: boolean) {
-        await FavoritesSchema.updateOne({ command }, { command, link, playlist }, { upsert: true });
-    }
-
     refreshFavMap(favMap: any, message: string) {
         const key = this.getKey(message);
         const link = this.getValue(message);
@@ -80,6 +52,34 @@ class Favorites {
         })
         result += '```';
         return result;
+    }
+
+    private getKey(message: string): string {
+        const msg = this.getFormattedMessage(message);
+        return msg.split('http')[0].trim();
+    }
+
+    private getValue(message: string): string {
+        const msg = this.getFormattedMessage(message);
+        return msg.slice(msg.indexOf('http')).trim();
+    }
+
+    private getFormattedMessage(message: string): string {
+        const params = new RegExp('[^;fav].+').exec(message);
+        return params ? params[0] : '';
+    }
+
+    private isPlaylist(message: string): boolean {
+        return message.includes('list=');
+    }
+
+    private async keyAlreadyExists(key: string) {
+        const allComannds: any = await Help.getCommandsMap();
+        return key in allComannds;
+    }
+
+    private async upsertFavorite(command: string, link: string, playlist: boolean) {
+        await FavoritesSchema.updateOne({ command }, { command, link, playlist }, { upsert: true });
     }
 }
 
