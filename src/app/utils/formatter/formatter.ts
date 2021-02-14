@@ -41,10 +41,6 @@ export default class Formatter {
         return text?.length == 1 ? "0" + text : text;
     }
 
-    formatMessage(msg: string) {
-        return !msg ? msg : msg.replace(/(;play |;first )/g, "");
-    }
-
     formatQueue(serverQueue: any) {
         let queue = '```';
         serverQueue.songs.forEach((song: any, idx: number) => {

@@ -4,4 +4,15 @@ interface Song {
     volume: number;
 }
 
-export { Song };
+interface SearchSong {
+    index: number;
+    title: string;
+    channelTitle: string;
+    duration: string;
+    id: string;
+}
+
+export {
+    Song,
+    SearchSong,
+};

@@ -1,82 +1,71 @@
+import { AxiosResponse } from 'axios';
 import { environment } from '../../infra/environment';
 import YoutubeService from '../apis/youtube.service';
+import { Server } from '../models/server-manager.model';
+import { SearchSong } from '../models/song.model';
+import { SearchItem, SearchListResponse, VideoItem, VideoListResponse, } from '../models/youtube-response.model';
+import CustomError from '../shared/custom-error';
 import Formatter from '../utils/formatter/formatter';
+import ServerManager from './server-manager';
 
 export default class Search {
+    private youtube: YoutubeService;
+    private formatter: Formatter;
+    private server: Server;
 
-    searchSession: any = {};
-    lastCommand: any = {};
-    youtube: YoutubeService;
-    formatter: Formatter;
-
-    constructor() {
+    constructor(server: Server) {
+        this.server = server;
         this.youtube = new YoutubeService();
         this.formatter = new Formatter();
     }
 
-    getSearchSession() {
-        return this.searchSession;
-    }
-
-    setSearchSession(searchSession: any) {
-        this.searchSession = searchSession;
-    }
-
-    getLastCommandById(userId: string): String {
-        return this.lastCommand[userId];
-    }
-
-    setLastCommand(userId: string, command: string) {
-        this.lastCommand[userId] = command;
-    }
-
-    async search(message: any) {
+    getSongsByTitle = async (content: string): Promise<Array<SearchSong>> => {
         try {
-            const userId = message.author.id;
-            this.setLastCommand(userId, message.content.split(' ')[0].replace(environment.prefix, ''));
+            const searchResponse: AxiosResponse<SearchListResponse> = await this.youtube.searchSongsByTitle(content);
+            const videoIdList: Array<string> = searchResponse.data.items.map((video: SearchItem) => video.id.videoId);
 
-            const result: any = await this.youtube.get(this.formatter.formatMessage(message.content));
+            const result: Array<SearchSong> = [];
+            let idx: number = 1;
 
-            const idList = result.data.items.map((video: any) => {
-                return video.id.videoId;
-            });
+            for (const id of videoIdList) {
+                const videoResponse: AxiosResponse<VideoListResponse> = await this.youtube.getVideoById(id);
+                const data: VideoItem = videoResponse.data.items[0];
 
-            const videoList: any = [];
-            for (let item of idList) {
-                const result: any = await this.youtube.getById(item);
-                videoList.push(...result.data.items);
+                const { title, channelTitle } = data.snippet;
+                const duration = this.formatter.formatDuration(data.contentDetails.duration);
+
+                result.push({
+                    id,
+                    index: idx++,
+                    title,
+                    channelTitle,
+                    duration,
+                });
             }
-            this.showOptions(message, videoList);
+
+            return result;
         } catch (error) {
             console.log('== Error: ', error);
+            throw new CustomError("Falai capoeirista, deu um problema na busca aqui.", 'API YouTube Error');
         }
     }
 
-    showOptions(message: any, videosList: any) {
-        const userId = message.author.id;
-        let msg = '';
-        new Promise(resolve => {
-            //Recriando objeto sempre que o usuário fizer uma nova busca
-            this.searchSession[userId] = {};
-
-            videosList.forEach((video: any, i: number) => {
-                let title = video.snippet.title;
-                let channelTitle = video.snippet.channelTitle;
-                let duration = this.formatter.formatDuration(video.contentDetails.duration);
-                let index = i + 1;
-                msg += `${index}. ${title} | ${channelTitle} (${duration})\r\n`;
-                this.searchSession[userId][index] = video.id;
-            });
-
-            return resolve(msg);
-        }).then(
-            res => {
-                message.channel.send("```" + res + "```");
-            }, error => {
-                message.channel.send('Erro ao exibir lista de vídeos encontrados.');
-                console.log('showOptions', error);
-            }
-        );
+    saveUserSearchOptions = (userId: string, options: Array<SearchSong>, nextMusic: boolean) => {
+        this.server.searchSession[userId] = {
+            options,
+            nextMusic
+        };
     }
 
+    showOptions(options: Array<SearchSong>) {
+        let resultMessage = '```autohotkey\r\n';
+
+        options.forEach((video: SearchSong) => {
+            resultMessage += `${video.index}. ${video.title} | ${video.channelTitle} (${video.duration})\r\n`;
+        });
+
+        resultMessage += '```';
+
+        this.server.textChannel.send(resultMessage);
+    }
 }

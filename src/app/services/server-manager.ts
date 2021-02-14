@@ -1,6 +1,8 @@
-import { DMChannel, NewsChannel, TextChannel, VoiceChannel } from 'discord.js';
+import { DMChannel, Message, NewsChannel, TextChannel, VoiceChannel } from 'discord.js';
 import { Server } from '../models/server-manager.model';
 import { Song } from '../models/song.model';
+import CustomError from '../shared/custom-error';
+import ServerManagerUtils from '../utils/server-manager.utils';
 
 class ServerManager {
     private static instance: ServerManager;
@@ -31,7 +33,8 @@ class ServerManager {
             voiceChannel: voiceChannel,
             connection: connection,
             songs: [],
-            playing: false, // trocar para Song atual
+            playing: false,
+            searchSession: {}
         };
 
         this.servers.set(serverId, server);
@@ -54,9 +57,25 @@ class ServerManager {
     }
 
     enqueueSongs = (serverId: string, songList: Array<Song>, nextMusic: boolean): void => {
-        console.log('QUEUE ANTES: ', this.servers.get(serverId)!.playing);
         this.servers.get(serverId)!.playing = true;
         nextMusic ? this.servers.get(serverId)!.songs.splice(1, 0, ...songList) : this.servers.get(serverId)!.songs.push(...songList);
+    }
+
+    startNewServer = async (message: Message): Promise<void> => {
+        try {
+            ServerManagerUtils.validateServerConf(message);
+            const serverId = message.guild!.id;
+            const textChannel = message.channel;
+            const voiceChannel = message.member!.voice.channel!;
+
+            await this.connect(serverId, textChannel, voiceChannel);
+        } catch (err) {
+            if (err.type === 'Custom')
+                throw err;
+
+            console.log('== startNewServer Error: ', err);
+            throw new CustomError("Ih raaapaz! Encontrei um problema ao entrar no canal de voz. ", "Execution Error");
+        }
     }
 }
 

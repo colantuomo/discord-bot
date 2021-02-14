@@ -1,56 +1,43 @@
 import ytdl from 'ytdl-core';
 import ServerManager from './server-manager';
-import Search from './search';
-import { environment } from '../../infra/environment';
 import { Server } from '../models/server-manager.model';
-import { Message, BroadcastDispatcher, StreamDispatcher } from 'discord.js';
+import { StreamDispatcher } from 'discord.js';
 import PlayUtils from '../utils/play.utils';
 import YouTubeSong from './youtube-song/youtube-song';
 import SongByLink from './youtube-song/song-by-link';
 import SongByName from './youtube-song/song-by-name';
-import { Song } from '../models/song.model';
+import { SearchSong, Song } from '../models/song.model';
 import CustomError from '../shared/custom-error';
+import { SearchObject } from '../models/search.model';
 
 export default class Play {
-    private utils: PlayUtils;
-    private search: Search
     private serverManager: ServerManager;
-    private server: Server | undefined;
+    private server: Server;
 
-    constructor(serverId?: string) {
+    constructor(serverId: string) {
         this.serverManager = ServerManager.getInstance();
-        this.server = serverId ? this.serverManager.get(serverId) : undefined;
-        this.utils = new PlayUtils();
-        this.search = new Search();
+        this.server = this.serverManager.get(serverId)!;
     }
 
-    handlePlayCommand = async (message: Message, nextMusic: boolean): Promise<void> => {
-        try {
-            this.utils.validateServerConf(message);
+    handlePlayCommand = async (userId: string, content: string, nextMusic: boolean): Promise<void> => {
+        const isLink = PlayUtils.isLink(content);
+        const strategy = isLink ? new SongByLink() : new SongByName(this.server, userId, nextMusic);
+        const context = new YouTubeSong(strategy);
+        const songList = await context.getSongList(content);
 
-            const content = message.content;
-            const isLink = this.utils.isLink(content);
-            const strategy = isLink ? new SongByLink() : new SongByName();
-            const context = new YouTubeSong(strategy);
-            const songList = await context.getSongList(content);
+        if (songList.length === 0) return;
 
-            if (!this.server) {
-                await this.startNewServer(message);
-                this.addSongsToServerQueue(songList, nextMusic);
-                this.execute(songList[0]);
-            } else {
-                this.addSongsToServerQueue(songList, nextMusic);
-            }
-        }
-        catch (err) {
-            const errormessage = err.type && err.type === 'Custom' ? err.message : 'Erro ao tocar música escolhida :(';
-
-            message.channel.send(errormessage);
-        }
+        !this.server.playing ? (() => {
+            this.addSongsToServerQueue(songList, nextMusic);
+            this.execute(songList[0]);
+        })() :
+            this.addSongsToServerQueue(songList, nextMusic);
     }
 
     execute = (song: Song | undefined): void => {
         const serverId = this.server!.serverId;
+        this.server.playing = true;
+
         if (!song) {
             this.server!.voiceChannel.leave();
             this.serverManager.disconnect(serverId);
@@ -86,33 +73,19 @@ export default class Play {
         return dispatcher.paused;
     }
 
-    // playSearch = (message: any, nextMusic: Boolean) => {
-    //     const userId = message.author.id;
-    //     const msg = message.content.replace(environment.prefix, "");
-
-    //     if (parseInt(msg) > 5 || parseInt(msg) < 1) {
-    //         message.channel.send("This number isn't on the list.");
-    //     } else {
-    //         const searchSession = this.search.getSearchSession();
-    //         let videoId = searchSession[userId][msg];
-    //         message.content = environment.prefix + 'play ' + 'https://www.youtube.com/watch?v=' + videoId;
-    //         this.play(message, nextMusic);
-    //     }
-    // }
-
-    private startNewServer = async (message: Message): Promise<void> => {
-        try {
-            const serverId = message.guild!.id;
-            const textChannel = message.channel;
-            const voiceChannel = message.member!.voice.channel!;
-
-            this.server = await this.serverManager.connect(serverId, textChannel, voiceChannel);
-        } catch (err: any) {
-            this.serverManager.disconnect(message.guild!.id);
-
-            console.log('== startNewServer Error: ', err);
-            throw new CustomError("Ih raaapaz! Encontrei um problema ao entrar no canal de voz. ", "Execution Error");
+    playSearch = async (userId: string, option: number): Promise<void> => {
+        if (option < 1 || option > 5) {
+            this.server.textChannel.send("This number isn't on the list.");
+            return;
         }
+
+        let userSearchSession: SearchObject = this.server.searchSession[userId];
+        const nextMusic: boolean = !!userSearchSession.nextMusic;
+        const videoId = userSearchSession.options?.filter((song: SearchSong) => song.index === option)[0].id;
+        this.server.searchSession[userId] = {};
+
+        const content = `https://www.youtube.com/watch?v=${videoId}`;
+        await this.handlePlayCommand(userId, content, nextMusic);
     }
 
     private addSongsToServerQueue = async (songs: Array<Song>, nextMusic: boolean): Promise<void> => {

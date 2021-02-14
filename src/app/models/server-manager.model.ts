@@ -1,5 +1,6 @@
 import { DMChannel, NewsChannel, TextChannel, VoiceChannel, VoiceConnection } from 'discord.js';
-import { Song } from './song.model';
+import { searchSessionObject } from './search.model';
+import { Song, SearchSong } from './song.model';
 
 interface Server {
     serverId: string;
@@ -8,6 +9,7 @@ interface Server {
     connection: VoiceConnection;
     songs: Array<Song>;
     playing: boolean;
+    searchSession: searchSessionObject;
 }
 
 export { Server };

@@ -1,26 +1,17 @@
 import Discord from 'discord.js'
 import Play from '../services/play'
-import Playlist from '../services/playList'
-import Skip from '../services/skip'
-import Stop from '../services/stop'
-import Search from '../services/search'
-import Favorites from '../services/favorites'
-import Help from '../services/help'
-import Volume from '../services/volume'
-// import Formatter from './formatter/formatter'
-import QueueService from '../services/server-manager'
 import { environment } from '../../infra/environment'
 // import db from '../db/db'
 import ValidCommands from '../models/commands.model'
 import Queue from '../services/queue'
 import ServerManager from '../services/server-manager'
+import { Server } from '../models/server-manager.model'
 
 class Commands {
     private prefix = environment.prefix;
-    private play: Play;
     private queue: Queue;
-    private search: Search;
     private serverManager: ServerManager;
+    private server: Server | undefined;
     private serverId: string
     private commands: Readonly<ValidCommands> = {
         fav: (): void => {
@@ -29,11 +20,15 @@ class Commands {
         favlist: (): void => {
 
         },
-        first: (message: Discord.Message): void => {
+        first: async (message: Discord.Message): Promise<void> => {
             const content: string = message.content.replace('first', '').trim();
-            message.content = content;
+            const userId: string = message.author.id;
 
-            this.play.handlePlayCommand(message, true);
+            if (!this.server)
+                await this.serverManager.startNewServer(message);
+
+            const play = new Play(this.serverId);
+            play.handlePlayCommand(userId, content, true);
         },
         help: (): void => {
 
@@ -47,7 +42,8 @@ class Commands {
                 return;
 
             try {
-                const paused = this.play.pause();
+                const play = new Play(this.serverId);
+                const paused = play.pause();
                 message.channel.send(`Música ${paused ? 'pausada' : 'retomada'}.`);
             }
             catch (err) {
@@ -56,21 +52,21 @@ class Commands {
             }
 
         },
-        play: (message: Discord.Message): void => {
+        play: async (message: Discord.Message): Promise<void> => {
             const content: string = message.content.replace('play', '').trim();
 
+            if (!this.server)
+                await this.serverManager.startNewServer(message);
+
+            const play = new Play(this.serverId);
+
             if (content === '') {
-                this.play.pause();
+                play.pause();
                 return;
             }
 
-            message.content = content;
-
-            this.play.handlePlayCommand(message, false);
-
-            // this.play.isLink(content)
-            //     ? this.play.play(message, false)
-            //     : this.handlePlayCommand(message)
+            const userId: string = message.author.id;
+            await play.handlePlayCommand(userId, content, false);
         },
         queue: (message: Discord.Message): void => {
             if (!this.queue.validQueueParams(message))
@@ -96,33 +92,33 @@ class Commands {
 
             const volume: string = message.content.replace('volume', '').trim();
             this.queue.setVolume(this.serverId, volume);
-            // serverQueue.connection.dispatcher.setVolume(Volume.getVolume(volume));
         },
     }
 
     constructor(serverId: string) {
         this.serverId = serverId;
-        this.play = new Play(serverId);
         this.queue = new Queue();
         this.serverManager = ServerManager.getInstance();
-        this.search = new Search();
+        this.server = this.serverManager.get(serverId);
     }
 
-    handleCommands = (message: Discord.Message) => {
+    handleCommands = async (message: Discord.Message): Promise<void> => {
         const args: Array<string> = message.content.split(' ');
         const command: string = args[0].toLowerCase();
 
         // Choosing an item from the search list
         if (parseInt(command)) {
-            if (!(message.author.id in this.search.getSearchSession())) {
-                message.channel.send(
-                    'You have to search for something before choose an item from the list.'
-                )
+            const userId: string = message.author.id;
+
+            if (!this.server || this.unavailableOptions(userId)) {
+                const msg = 'You have to search for something before choose an item from the list.';
+                message.channel.send(msg);
                 return;
             }
 
-            const nextMusic = this.search.getLastCommandById(message.author.id) == 'first'
-            // this.play.playSearch(message, nextMusic)
+            const play = new Play(this.serverId);
+            await play.playSearch(userId, parseInt(command));
+            return;
         }
 
         // Custom command
@@ -133,12 +129,13 @@ class Commands {
             //     favMap[key].playlist
             //         ? Playlist.addPlaylist(message)
             //         : Play.play(message, serverQueue, false)
+            return;
         }
 
         // Default commands
         const executeCommand = this.commands[command as keyof ValidCommands];
         if (executeCommand)
-            executeCommand(message);
+            await executeCommand(message);
         else {
             message.channel.send(
                 `Comando inválido. Caso esteja com dúvida de como utilizar os comandos do bot digite ${this.prefix}help`
@@ -151,6 +148,15 @@ class Commands {
         const map = {}; // *********
         const command = message.replace(environment.prefix, '');
         return command in map;
+    }
+
+    private unavailableOptions = (userId: string): boolean => {
+        const neverSearched = !(userId in this.server!.searchSession);
+        const hasOptions = this.server!.searchSession[userId].options;
+        console.log('hasOptions: ', hasOptions);
+
+
+        return neverSearched || !hasOptions;
     }
 }
 

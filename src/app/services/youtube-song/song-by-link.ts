@@ -1,6 +1,7 @@
 import ytdl from "ytdl-core";
 import { Song } from "../../models/song.model";
 import { SongStrategy } from "../../models/youtube-song.model";
+import CustomError from "../../shared/custom-error";
 import Playlist from "../playList";
 
 /**
@@ -22,9 +23,9 @@ export default class SongByLink implements SongStrategy {
             return this.playlist.getPlaylistSongs(url);
         }
 
-        const songInfo = await ytdl.getBasicInfo(url.toString()).catch((error: any) => {
-            console.log('== ERROR YTDL: ', error);
-            throw new Error('Deu aquele erro la men');
+        const songInfo = await ytdl.getBasicInfo(url.toString()).catch((err: any) => {
+            console.log(err.message);
+            throw new CustomError('Não foi possível encontrar um vídeo a partir desta URL', 'Execution Error');
         });
 
         const song = {

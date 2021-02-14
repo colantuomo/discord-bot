@@ -2,7 +2,7 @@ import axios from 'axios';
 import { environment } from '../../infra/environment';
 
 export default class YoutubeService {
-    async get(message: any) {
+    async searchSongsByTitle(message: any) {
         try {
             return await axios.get(environment.googleBaseURL + '/search', {
                 params: {
@@ -22,7 +22,7 @@ export default class YoutubeService {
         }
     }
 
-    async getById(id: string) {
+    async getVideoById(id: string) {
         try {
             return await axios.get(environment.googleBaseURL + '/videos', {
                 params: {

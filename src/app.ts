@@ -38,15 +38,14 @@ const main = async () => {
         const serverId = message.guild?.id;
 
         if (serverId) {
-            new Commands(serverId).handleCommands(message);
+            await new Commands(serverId).handleCommands(message).catch((err) => {
+                const errorMessage = err.type === 'Custom' ? err.message : 'Erro ao executar comando';
+                message.channel.send(errorMessage);
+            });
         } else {
             message.channel.send('Erro ao receber comando');
         }
 
-        // } else if (Shared.command(message, 'volume')) {
-        //     const msg = message.content.split(' ');
-        //     const volume = msg.length > 1 ? msg[1].toString() : '5';
-        //     serverQueue.connection.dispatcher.setVolume(Volume.getVolume(volume));
         // } else if (Shared.command(message, 'favlist')) {
         //     const favList = await Favorites.getFavoriteCommands()
         //     message.channel.send(favList)
