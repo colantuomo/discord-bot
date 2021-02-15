@@ -9,6 +9,7 @@ import SongByName from './youtube-song/song-by-name';
 import { SearchSong, Song } from '../models/song.model';
 import CustomError from '../shared/custom-error';
 import { SearchObject } from '../models/search.model';
+import Volume from '../services/volume';
 
 export default class Play {
     private serverManager: ServerManager;
@@ -19,13 +20,16 @@ export default class Play {
         this.server = this.serverManager.get(serverId)!;
     }
 
-    handlePlayCommand = async (userId: string, content: string, nextMusic: boolean): Promise<void> => {
-        const isLink = PlayUtils.isLink(content);
-        const strategy = isLink ? new SongByLink() : new SongByName(this.server, userId, nextMusic);
-        const context = new YouTubeSong(strategy);
-        const songList = await context.getSongList(content);
+    handlePlayCommand = async (userId: string, content: string, nextMusic: boolean, volume: string = '5'): Promise<void> => {
+        const isLink: boolean = PlayUtils.isLink(content);
+        const strategy: SongByLink | SongByName = isLink ? new SongByLink() : new SongByName(this.server, userId, nextMusic);
+        const context: YouTubeSong = new YouTubeSong(strategy);
+        let songList: Array<Song> = await context.getSongList(content);
 
         if (songList.length === 0) return;
+
+        if (volume !== '5')
+            songList = this.playWithCustomVolume(songList, volume);
 
         !this.server.playing ? (() => {
             this.addSongsToServerQueue(songList, nextMusic);
@@ -94,5 +98,15 @@ export default class Play {
         // Ver a possibilidade de implementar o design pattern observer para retornar mensagens
         const responseMessage = songs.length > 1 ? 'As músicas foram adicionadas a fila!' : `${songs[0].title} foi adicionado a fila!`;
         this.server!.textChannel.send(responseMessage);
+    }
+
+    private playWithCustomVolume = (songList: Array<Song>, volume: string): Array<Song> => {
+        return songList.map((song: Song) => (
+            {
+                title: song.title,
+                url: song.url,
+                volume: Volume.getVolume(volume),
+            }
+        ));
     }
 }

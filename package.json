@@ -4,8 +4,8 @@
     "description": "bot for discord",
     "main": "index.js",
     "scripts": {
-        "start": "nodemon src/app/app.ts",
-        "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/app/app.ts",
+        "start": "nodemon src/app.ts",
+        "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/app.ts",
         "test": "jest --passWithNoTests"
     },
     "author": "Markin DJ - Team",

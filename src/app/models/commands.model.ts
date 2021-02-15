@@ -12,4 +12,6 @@ interface ValidCommands {
     volume: Function;
 }
 
-export default ValidCommands;
+export {
+    ValidCommands,
+};

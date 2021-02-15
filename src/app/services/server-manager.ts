@@ -3,6 +3,7 @@ import { Server } from '../models/server-manager.model';
 import { Song } from '../models/song.model';
 import CustomError from '../shared/custom-error';
 import ServerManagerUtils from '../utils/server-manager.utils';
+import Favorites from '../services/favorites';
 
 class ServerManager {
     private static instance: ServerManager;
@@ -34,13 +35,13 @@ class ServerManager {
             connection: connection,
             songs: [],
             playing: false,
-            searchSession: {}
+            searchSession: {},
+            favorites: {},
         };
 
         this.servers.set(serverId, server);
-        const result = this.servers.get(serverId);
 
-        return result!;
+        return this.servers.get(serverId)!;
     }
 
     disconnect = (serverId: string): void => {
@@ -61,14 +62,21 @@ class ServerManager {
         nextMusic ? this.servers.get(serverId)!.songs.splice(1, 0, ...songList) : this.servers.get(serverId)!.songs.push(...songList);
     }
 
-    startNewServer = async (message: Message): Promise<void> => {
+    startNewServer = async (message: Message): Promise<Server> => {
         try {
             ServerManagerUtils.validateServerConf(message);
             const serverId = message.guild!.id;
             const textChannel = message.channel;
             const voiceChannel = message.member!.voice.channel!;
 
-            await this.connect(serverId, textChannel, voiceChannel);
+            const server = await this.connect(serverId, textChannel, voiceChannel);
+
+            const favorites = new Favorites(serverId);
+            const favoriteObject = await favorites.getFavoritesMap();
+
+            server.favorites = favoriteObject;
+
+            return server;
         } catch (err) {
             if (err.type === 'Custom')
                 throw err;

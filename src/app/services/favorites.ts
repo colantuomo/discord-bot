@@ -1,60 +1,72 @@
 import FavoritesSchema from '../../db/schema/favorites.schema';
-import Help from './help';
+import { FavoritesObject } from '../models/favorites.model';
+import CommandsDAO from '../dao/commands.dao';
+import FavoritesDAO from '../dao/favorites.dao';
+import CustomError from '../shared/custom-error';
+import ServerManager from './server-manager';
+import { Server } from '../models/server-manager.model';
 
-class Favorites {
+export default class Favorites {
+    private server: Server;
+
+    constructor(serverId: string) {
+        this.server = ServerManager.getInstance().get(serverId)!;
+    }
+
     async getFavoritesMap() {
-        let result: any = {};
-        const data = await FavoritesSchema.find();
+        const result: FavoritesObject = {};
+        const data = await FavoritesDAO.getFavoritesByServer(this.server.serverId);
 
-        data.map((item: any) => (
+        data.forEach((item: any) =>
             result[item.command] = {
                 link: item.link,
-                playlist: item.playlist
+                isPlaylist: !!item.playlist,
+                serverId: item.serverId,
+                volume: item.volume
             }
-        ));
+        );
+
         return result;
     }
 
-    async addFav(message: string) {
-        try {
-            const key: string = this.getKey(message);
+    addFavorite = async (message: string): Promise<void> => {
+        const command: string = this.getKey(message);
 
-            if (await this.keyAlreadyExists(key)) {
-                throw 'Comando já utilizado para outra função.'
-            }
+        if (await this.keyAlreadyExists(command))
+            throw new CustomError('Comando já utilizado para outra função.', 'Validation Error');
 
-            const value: string = this.getValue(message);
+        const link: string = this.getValue(message);
+        const isPlaylist: boolean = this.isPlaylist(link);
 
-            const playlist: boolean = this.isPlaylist(value);
-
-            await this.upsertFavorite(key, value, playlist);
-            return { created: true, command: key };
-        }
-        catch (error) {
-            console.log('== ERRO AO INSERIR NOVO FAVORITO == ', error);
-            return { created: false, command: '' };
-        }
+        await this.upsertFavorite(command, link, isPlaylist);
     }
 
-    refreshFavMap(favMap: any, message: string) {
+    refreshFavMap = (message: string): void => {
         const key = this.getKey(message);
         const link = this.getValue(message);
-        const playlist = this.isPlaylist(link);
-        favMap[key] = { link, playlist };
-        return favMap;
+        const isPlaylist = this.isPlaylist(link);
+
+        this.server.favorites[key] = {
+            serverId: this.server.serverId,
+            link,
+            volume: '5',
+            isPlaylist,
+        };
     }
 
-    async getFavoriteCommands() {
-        let result = '```';
-        const data = await FavoritesSchema.find();
-        data.forEach((item: any) => {
-            result += `${item.command} - ${item.link} \r\n`;
-        })
-        result += '```';
-        return result;
+    showFavoriteCommands = (): void => {
+        let favoriteCommands = '```';
+        const favorites = this.server!.favorites;
+
+        for (const command in favorites)
+            favoriteCommands += `${command} - ${favorites[command].link} \r\n`;
+
+        favoriteCommands += '```';
+
+        this.server.textChannel.send(favoriteCommands);
     }
 
-    private getKey(message: string): string {
+    getKey(message: string): string {
         const msg = this.getFormattedMessage(message);
         return msg.split('http')[0].trim();
     }
@@ -74,14 +86,24 @@ class Favorites {
     }
 
     private async keyAlreadyExists(key: string) {
-        const allComannds: any = await Help.getCommandsMap();
-        return key in allComannds;
+        const allComannds: any = await CommandsDAO.getDefaultCommands();
+
+        return (allComannds.filter((item: any) => item.command === key)).length > 0;
     }
 
-    private async upsertFavorite(command: string, link: string, playlist: boolean) {
-        await FavoritesSchema.updateOne({ command }, { command, link, playlist }, { upsert: true });
+    private async upsertFavorite(command: string, link: string, isPlaylist: boolean) {
+        const filter = {
+            serverId: this.server.serverId,
+            command,
+        };
+
+        const update = {
+            command,
+            link,
+            isPlaylist,
+            volume: 5
+        };
+
+        await FavoritesDAO.upsertFavorite(filter, update);
     }
 }
-
-const instance = new Favorites();
-export = instance;

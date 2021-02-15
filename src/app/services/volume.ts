@@ -1,6 +1,6 @@
 class Volume {
     getVolume(volumeIndex: string): number {
-        const volumeDict: any = {
+        const volumeDict: Record<string, number> = {
             '1': 0.01,
             '2': 0.02,
             '3': 0.03,
@@ -21,5 +21,4 @@ class Volume {
     }
 }
 
-const instance = new Volume()
-export = instance
+export default new Volume();
