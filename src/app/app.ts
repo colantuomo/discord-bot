@@ -9,7 +9,7 @@ import Volume from './app-methods/volume'
 import Formatter from './formatter/formatter'
 import QueueService from '../service/queue.service'
 // @ts-ignore
-import Playlist from './app-methods/playList'
+import { playlist as Playlist } from './app-methods/playList'
 import Shared from './shared/shared'
 import environment from '../infra/environment'
 import db from '../db/db'

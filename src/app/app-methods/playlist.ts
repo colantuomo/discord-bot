@@ -82,5 +82,5 @@ class Playlist {
     }
 }
 
-const instance = new Playlist()
-export = instance
+const playlist = new Playlist()
+export { playlist }
