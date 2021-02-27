@@ -1,5 +1,6 @@
 import Discord from 'discord.js'
 import Play from './app-methods/play'
+// @ts-ignore
 import { playlist as Playlist } from './app-methods/playList'
 import Skip from './app-methods/skip'
 import Stop from './app-methods/stop'
