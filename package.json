@@ -8,7 +8,8 @@
         "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/app/app.ts",
         "build": "tsc",
         "test": "jest --passWithNoTests",
-        "heroku:bash": "heroku run bash --app markin-dj"
+        "heroku:bash": "heroku run bash --app markin-dj",
+        "heroku:logs": "heroku logs --app markin-dj --tail"
     },
     "author": "Markin DJ - Team",
     "license": "ISC",
