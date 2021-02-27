@@ -1,1 +1,1 @@
-worker: npx ts-node src/app/app.ts
+worker: node src/dist/app/app.js
