@@ -1,4 +1,6 @@
 import Discord from 'discord.js'
+// @ts-ignore
+import { playlist as Playlist } from './app-methods/playList'
 import Play from './app-methods/play'
 import Skip from './app-methods/skip'
 import Stop from './app-methods/stop'
@@ -8,8 +10,6 @@ import Help from './app-methods/help'
 import Volume from './app-methods/volume'
 import Formatter from './formatter/formatter'
 import QueueService from '../service/queue.service'
-// @ts-ignore
-import { playlist as Playlist } from './app-methods/playList'
 import Shared from './shared/shared'
 import environment from '../infra/environment'
 import db from '../db/db'
