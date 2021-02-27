@@ -4,7 +4,7 @@
     "description": "bot for discord",
     "main": "index.js",
     "scripts": {
-        "start": "nodemon src/app/app.ts",
+        "start": "npx nodemon src/app/app.ts",
         "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/app/app.ts",
         "test": "jest --passWithNoTests"
     },
