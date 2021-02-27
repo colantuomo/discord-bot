@@ -82,4 +82,5 @@ class Playlist {
     }
 }
 
-export default new Playlist()
+const playlist = new Playlist()
+export { playlist }

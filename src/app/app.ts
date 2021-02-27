@@ -1,6 +1,6 @@
 import Discord from 'discord.js'
 import Play from './app-methods/play'
-import Playlist from './app-methods/playList'
+import { playlist as Playlist } from './app-methods/playList'
 import Skip from './app-methods/skip'
 import Stop from './app-methods/stop'
 import Search from './app-methods/search'
@@ -55,9 +55,11 @@ const main = async () => {
         } else if (Shared.command(message, 'skip')) {
             Skip.skip(message, serverQueue)
         } else if (Shared.command(message, 'volume')) {
-            const msg = message.content.split(' ');
-            const volume = msg.length > 1 ? msg[1].toString() : '5';
-            serverQueue.connection.dispatcher.setVolume(Volume.getVolume(volume));
+            const msg = message.content.split(' ')
+            const volume = msg.length > 1 ? msg[1].toString() : '5'
+            serverQueue.connection.dispatcher.setVolume(
+                Volume.getVolume(volume)
+            )
         } else if (Shared.command(message, 'stop')) {
             Stop.stop(message, serverQueue)
         } else if (Shared.command(message, 'leave')) {
