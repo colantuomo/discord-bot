@@ -8,9 +8,9 @@
         "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/app/app.ts",
         "build": "tsc",
         "test": "jest --passWithNoTests",
-        "push-to-heroku": "npm run build && git push",
         "heroku:bash": "heroku run bash --app markin-dj",
-        "heroku:logs": "heroku logs --app markin-dj --tail"
+        "heroku:logs": "heroku logs --app markin-dj --tail",
+        "heroku:restart": "heroku ps:restart --app markin-dj"
     },
     "author": "Markin DJ - Team",
     "license": "ISC",
