@@ -6,7 +6,11 @@
     "scripts": {
         "start": "nodemon src/app.ts",
         "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/app.ts",
-        "test": "jest --passWithNoTests"
+        "build": "tsc",
+        "test": "jest --passWithNoTests",
+        "push-to-heroku": "npm run build && git push",
+        "heroku:bash": "heroku run bash --app markin-dj",
+        "heroku:logs": "heroku logs --app markin-dj --tail"
     },
     "author": "Markin DJ - Team",
     "license": "ISC",
@@ -25,7 +29,8 @@
         "ts-node": "^9.1.1",
         "typescript": "^4.1.5",
         "youtube-playlist": "^1.0.4",
-        "ytdl-core": "^4.4.5"
+        "ytdl-core": "^4.4.5",
+        "heroku": "^7.49.1"
     },
     "devDependencies": {
         "@babel/core": "^7.12.16",
