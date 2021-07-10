@@ -2,9 +2,10 @@ import Discord from 'discord.js'
 import { environment } from './infra/environment'
 import db from './db/db'
 import Commands from './app/controllers/commands'
+import danielDaBahia from './utils/izac';
 
 const main = async () => {
-    console.log('\nBOM DIA MARCELO, INICIOU APLICAÇÃO')
+    console.log(`${danielDaBahia} \nBOM DIA MARCELO, INICIOU APLICAÇÃO`)
     const client = new Discord.Client();
     client?.user?.setPresence({ status: 'dnd' })
 
