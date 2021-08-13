@@ -9,6 +9,7 @@ interface ValidCommands {
     queue: Function;
     skip: Function;
     stop: Function;
+    sync: Function;
     volume: Function;
 }
 

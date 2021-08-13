@@ -98,6 +98,9 @@ class Commands {
 
             this.queue.stop(this.serverId);
         },
+        sync: async (): Promise<void> => {
+            this.showSyncLink();
+        },
         volume: (message: Discord.Message): void => {
             if (!this.queue.validQueueParams(message))
                 return;
@@ -182,6 +185,13 @@ class Commands {
 
         defaultCommands += '```';
         this.server!.textChannel.send(defaultCommands);
+    }
+
+    private showSyncLink = (): void => {
+        const sync = process.env.SYNC;
+        const message = sync ? `Gere seu Daniel com moderação!\n${sync}` : 'Link do sync não configurado';
+
+        this.server!.textChannel.send(message);
     }
 }
 
