@@ -52,18 +52,17 @@ class Db {
             this.tryReconect(url, options, 5000);
         });
 
-        await mongoose.connect(url, options).catch(() => { });
+        await mongoose.connect(url, options);
     }
 
-    async tryReconect (url: any, options: any, ms: any) {
+    async tryReconect(url: any, options: any, ms: any) {
 
         console.log(`\nWaiting ${ms / 1000} seconds to retry to connect to mongodb`);
 
         setTimeout(() => {
-            mongoose.connect(url, options).catch(() => { })
+            mongoose.connect(url, options)
         }, ms);
     }
-
 }
 
 const instance = new Db();
