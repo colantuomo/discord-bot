@@ -20,7 +20,7 @@
         "ffmpeg-static": "^4.4.0",
         "google-auth-library": "^7.11.0",
         "googleapis": "^92.0.0",
-        "mongoose": "^5.13.7",
+        "mongoose": "^5.13.15",
         "opusscript": "0.0.8",
         "ts-node": "^10.4.0",
         "typescript": "^4.5.4",
