@@ -10,19 +10,17 @@
     },
     "author": "Markin DJ - Team",
     "license": "ISC",
-    "engines": {
-        "node": "12"
-    },
     "dependencies": {
+        "@discordjs/voice": "^0.16.1",
         "axios": "^0.24.0",
-        "discord.js": "^12.5.3",
+        "discord.js": "14.14.1",
         "dotenv": "^10.0.0",
         "ffmpeg-static": "^4.4.0",
         "google-auth-library": "^7.11.0",
         "googleapis": "^92.0.0",
         "mongoose": "^5.13.7",
         "opusscript": "0.0.8",
-        "ts-node": "^10.4.0",
+        "ts-node": "^10.9.1",
         "typescript": "^4.5.4",
         "youtube-playlist": "^1.0.4",
         "ytdl-core": "^4.9.2"
@@ -34,9 +32,9 @@
         "@types/jest": "^27.0.3",
         "@types/mongoose": "^5.11.96",
         "babel-jest": "^27.4.5",
+        "dot-prop": ">=6.0.1",
         "jest": "^27.4.5",
         "nodemon": "^2.0.15",
-        "dot-prop": ">=6.0.1",
         "ts-node-dev": "^1.1.8"
     }
 }

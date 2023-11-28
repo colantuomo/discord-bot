@@ -42,9 +42,11 @@ export default class Play {
         const serverId = this.server!.serverId;
         this.server.playing = true;
 
+        // joinVoiceChannel({ channelId: serverId, guildId: serverId, adapterCreator:  });
+
         if (!song) {
-            this.server!.voiceChannel.leave();
-            this.serverManager.disconnect(serverId);
+            // this.server!.voiceChannel.leave();
+            // this.serverManager.disconnect(serverId);
             return;
         }
 
