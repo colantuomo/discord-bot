@@ -65,9 +65,9 @@ class ServerManager {
     startNewServer = async (message: Message): Promise<Server> => {
         try {
             ServerManagerUtils.validateServerConf(message);
-            const serverId = message.guild!.id;
-            const textChannel = message.channel;
-            const voiceChannel = message.member!.voice.channel!;
+            const serverId = message.guildId;
+            const textChannel = message.channelId;
+            const voiceChannel = message.author.id;
 
             const server = await this.connect(serverId, textChannel, voiceChannel);
 
